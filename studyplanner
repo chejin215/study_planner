@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 Career Roadmap - Industrial Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .progress-bar-container { width: 100%; background-color: #e5e7eb; border-radius: 9999px; height: 10px; }
+        .progress-bar-fill { height: 100%; border-radius: 9999px; transition: width 0.4s ease; }
+    </style>
+</head>
+<body class="p-4 md:p-8 pb-20">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header Section -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-indigo-700 mb-2">🚀 스마트 로드맵 & 데일리 플래너</h1>
+            <p class="text-gray-600 italic">"산업공학적 관점: 데이터 기반 자기 관리"</p>
+            
+            <div class="flex justify-center gap-4 mt-6">
+                <div class="glass-card px-6 py-4 flex flex-col items-center border border-indigo-200 min-w-[120px]">
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">중간고사</span>
+                    <span class="text-2xl font-bold text-indigo-600">D-<span id="dday">--</span></span>
+                </div>
+                <div class="glass-card px-6 py-4 flex flex-col items-center border border-green-200 min-w-[120px]">
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">오늘의 달성도</span>
+                    <span class="text-2xl font-bold text-green-600"><span id="total-progress">0</span>%</span>
+                </div>
+            </div>
+
+            <div class="mt-6 max-w-md mx-auto">
+                <div class="progress-bar-container">
+                    <div id="progress-fill" class="progress-bar-fill bg-green-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex mb-6 bg-white rounded-xl p-1 shadow-md sticky top-4 z-50">
+            <button onclick="showTab('daily')" class="tab-btn flex-1 py-3 text-sm font-bold rounded-lg bg-indigo-600 text-white transition-all" id="btn-daily">
+                <i class="fa-solid fa-list-check mr-2"></i>데일리 플래너
+            </button>
+            <button onclick="showTab('weekly')" class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500 transition-all" id="btn-weekly">
+                <i class="fa-solid fa-calendar-days mr-2"></i>주간 계획
+            </button>
+            <button onclick="showTab('info')" class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500 transition-all" id="btn-info">
+                <i class="fa-solid fa-bullseye mr-2"></i>과목 전략
+            </button>
+        </nav>
+
+        <!-- Tab 1: Daily Planner (Interactive) -->
+        <div id="daily" class="tab-content active space-y-6">
+            <!-- Morning Routine -->
+            <div class="glass-card p-6 border-l-4 border-yellow-400">
+                <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-sun text-yellow-500 mr-2"></i> 아침 골든타임 (07:40 - 08:30)</h2>
+                <div class="space-y-3" id="morning-tasks">
+                    <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
+                        <input type="checkbox" id="task1" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
+                        <span class="flex-1 font-medium">국어 지문 1개 구조도 분석 (메가)</span>
+                    </label>
+                    <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
+                        <input type="checkbox" id="task2" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
+                        <span class="flex-1 font-medium">일본어 N5 단어 10개 암기</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Study Tasks -->
+            <div class="glass-card p-6 border-l-4 border-indigo-500">
+                <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-book-open text-indigo-500 mr-2"></i> 메인 학습 세션</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
+                        <input type="checkbox" id="task3" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
+                        <span class="flex-1 font-medium">시발점 인강 1개 완강 & 워크북 풀기</span>
+                    </label>
+                    <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
+                        <input type="checkbox" id="task4" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
+                        <span class="flex-1 font-medium">자이스토리 수학 숙제 (최소 1시간)</span>
+                    </label>
+                    <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
+                        <input type="checkbox" id="task5" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
+                        <span class="flex-1 font-medium">영단어 50개 암기 확인</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Management Buttons -->
+            <div class="flex gap-4">
+                <button onclick="resetTasks()" class="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition">
+                    <i class="fa-solid fa-rotate-left mr-2"></i>초기화
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab 2: Weekly (ReadOnly Table) -->
+        <div id="weekly" class="tab-content">
+            <div class="glass-card p-6 overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b text-indigo-600 text-sm">
+                            <th class="pb-3 pr-4">요일</th>
+                            <th class="pb-3">수학 중점</th>
+                            <th class="pb-3">기타 과제</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b"><td class="py-4 font-bold">월/화/목</td><td>시발점 1강 + 워크북</td><td>영단어 50 + 야자</td></tr>
+                        <tr class="border-b bg-indigo-50/50"><td class="py-4 font-bold text-indigo-700">수요일</td><td>수학 과외 집중</td><td>과외 오답 정리</td></tr>
+                        <tr class="border-b bg-green-50/50"><td class="py-4 font-bold text-green-700">금요일</td><td>자이스토리 고난도</td><td>물/화 개념 정리</td></tr>
+                        <tr class="border-b"><td class="py-4 font-bold">토요일</td><td>과외 숙제 마무리</td><td>국어 주간 복습</td></tr>
+                        <tr class="border-b"><td class="py-4 font-bold">일요일</td><td>시발점 몰아듣기</td><td>주간 총정리</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Detailed Strategy -->
+        <div id="info" class="tab-content space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-card p-5 border-t-4 border-indigo-400">
+                    <h3 class="font-bold text-indigo-600 mb-2">📈 수학 (대수/과외)</h3>
+                    <p class="text-xs leading-relaxed text-gray-600">시발점(개념)은 매일 1강씩. 자이스토리(유형)는 과외 숙제 위주로 풀되 금요일에 킬러 문항 집중 공략.</p>
+                </div>
+                <div class="glass-card p-5 border-t-4 border-green-400">
+                    <h3 class="font-bold text-green-600 mb-2">📚 국어 (독학)</h3>
+                    <p class="text-xs leading-relaxed text-gray-600">아침 7:40 등교 필수. 메가스터디 강좌로 지문 구조도 연습. 족보닷컴보다 자습서와 평가문제집 위주.</p>
+                </div>
+                <div class="glass-card p-5 border-t-4 border-red-400">
+                    <h3 class="font-bold text-red-600 mb-2">🧪 물/화 I (내신)</h3>
+                    <p class="text-xs leading-relaxed text-gray-600">상위 10% 사수. 학교 프린트 무한 복습. 지엽적인 암기 포인트는 주말 저녁에 몰아서 정리.</p>
+                </div>
+                <div class="glass-card p-5 border-t-4 border-yellow-400">
+                    <h3 class="font-bold text-yellow-600 mb-2">🇯🇵 일본어 (유학)</h3>
+                    <p class="text-xs leading-relaxed text-gray-600">JLPT N5~N4 단어 암기. 등하교 및 쉬는시간 활용. 7월 문부성 준비용 N3 진입 목표.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Footer -->
+        <footer class="mt-12 text-center">
+            <div class="text-gray-400 text-xs mb-4">© 2025 IE Future Leader. Personal Roadmap Ver 2.1</div>
+        </footer>
+    </div>
+
+    <script>
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('text-gray-500');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-indigo-600', 'text-white');
+            activeBtn.classList.remove('text-gray-500');
+        }
+
+        // D-Day Calculation (Mid-term: April 28)
+        function updateDDay() {
+            const target = new Date('2025-04-28');
+            const today = new Date();
+            const diff = target - today;
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('dday').innerText = days > 0 ? days : 'Day';
+        }
+
+        // Handle Task Change & Persistence
+        function handleTaskChange() {
+            updateProgress();
+            saveTaskState();
+        }
+
+        function updateProgress() {
+            const checks = document.querySelectorAll('.task-check');
+            const checked = document.querySelectorAll('.task-check:checked');
+            const progress = Math.round((checked.length / checks.length) * 100);
+            
+            document.getElementById('total-progress').innerText = progress;
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+
+        // Save state to LocalStorage
+        function saveTaskState() {
+            const states = {};
+            document.querySelectorAll('.task-check').forEach(check => {
+                states[check.id] = check.checked;
+            });
+            localStorage.setItem('roadmap_task_states', JSON.stringify(states));
+        }
+
+        // Load state from LocalStorage
+        function loadTaskState() {
+            const saved = localStorage.getItem('roadmap_task_states');
+            if (saved) {
+                const states = JSON.parse(saved);
+                Object.keys(states).forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.checked = states[id];
+                });
+            }
+            updateProgress();
+        }
+
+        // Reset all tasks
+        function resetTasks() {
+            if (confirm('오늘의 플래너를 초기화할까요?')) {
+                document.querySelectorAll('.task-check').forEach(check => check.checked = false);
+                saveTaskState();
+                updateProgress();
+            }
+        }
+
+        // Initial setup
+        window.onload = () => {
+            updateDDay();
+            loadTaskState();
+        }
+    </script>
+</body>
+</html>
