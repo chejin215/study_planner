@@ -55,51 +55,48 @@
             </button>
         </nav>
 
-        <!-- Tab 1: Daily Planner (Interactive) -->
+        <!-- Tab 1: Daily Planner -->
         <div id="daily" class="tab-content active space-y-6">
-            <!-- Morning Routine -->
             <div class="glass-card p-6 border-l-4 border-yellow-400">
                 <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-sun text-yellow-500 mr-2"></i> 아침 골든타임 (07:40 - 08:30)</h2>
                 <div class="space-y-3" id="morning-tasks">
                     <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
                         <input type="checkbox" id="task1" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
-                        <span class="flex-1 font-medium">국어 지문 1개 구조도 분석 (메가)</span>
+                        <span class="flex-1 font-medium text-gray-800">국어 지문 1개 구조도 분석 (메가)</span>
                     </label>
                     <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
                         <input type="checkbox" id="task2" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
-                        <span class="flex-1 font-medium">일본어 N5 단어 10개 암기</span>
+                        <span class="flex-1 font-medium text-gray-800">일본어 N5 단어 10개 암기</span>
                     </label>
                 </div>
             </div>
 
-            <!-- Study Tasks -->
             <div class="glass-card p-6 border-l-4 border-indigo-500">
                 <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-book-open text-indigo-500 mr-2"></i> 메인 학습 세션</h2>
                 <div class="space-y-3">
                     <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
                         <input type="checkbox" id="task3" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
-                        <span class="flex-1 font-medium">시발점 인강 1개 완강 & 워크북 풀기</span>
+                        <span class="flex-1 font-medium text-gray-800">시발점 인강 1개 완강 & 워크북 풀기</span>
                     </label>
                     <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
                         <input type="checkbox" id="task4" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
-                        <span class="flex-1 font-medium">자이스토리 수학 숙제 (최소 1시간)</span>
+                        <span class="flex-1 font-medium text-gray-800">자이스토리 수학 숙제 (최소 1시간)</span>
                     </label>
                     <label class="flex items-center p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer">
                         <input type="checkbox" id="task5" class="task-check w-6 h-6 rounded text-indigo-600 mr-4" onchange="handleTaskChange()">
-                        <span class="flex-1 font-medium">영단어 50개 암기 확인</span>
+                        <span class="flex-1 font-medium text-gray-800">영단어 50개 암기 확인</span>
                     </label>
                 </div>
             </div>
 
-            <!-- Management Buttons -->
             <div class="flex gap-4">
                 <button onclick="resetTasks()" class="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition">
-                    <i class="fa-solid fa-rotate-left mr-2"></i>초기화
+                    <i class="fa-solid fa-rotate-left mr-2"></i>오늘 계획 초기화
                 </button>
             </div>
         </div>
 
-        <!-- Tab 2: Weekly (ReadOnly Table) -->
+        <!-- Tab 2: Weekly Plan -->
         <div id="weekly" class="tab-content">
             <div class="glass-card p-6 overflow-x-auto">
                 <table class="w-full text-left">
@@ -130,11 +127,11 @@
                 </div>
                 <div class="glass-card p-5 border-t-4 border-green-400">
                     <h3 class="font-bold text-green-600 mb-2">📚 국어 (독학)</h3>
-                    <p class="text-xs leading-relaxed text-gray-600">아침 7:40 등교 필수. 메가스터디 강좌로 지문 구조도 연습. 족보닷컴보다 자습서와 평가문제집 위주.</p>
+                    <p class="text-xs leading-relaxed text-gray-600">아침 7:40 등교 필수. 메가스터디 강좌로 지문 구조도 연습. 자습서와 평가문제집 위주.</p>
                 </div>
                 <div class="glass-card p-5 border-t-4 border-red-400">
                     <h3 class="font-bold text-red-600 mb-2">🧪 물/화 I (내신)</h3>
-                    <p class="text-xs leading-relaxed text-gray-600">상위 10% 사수. 학교 프린트 무한 복습. 지엽적인 암기 포인트는 주말 저녁에 몰아서 정리.</p>
+                    <p class="text-xs leading-relaxed text-gray-600">상위 10% 사수. 학교 프린트 무한 복습. 지엽적인 암기 포인트는 주말 저녁에 정리.</p>
                 </div>
                 <div class="glass-card p-5 border-t-4 border-yellow-400">
                     <h3 class="font-bold text-yellow-600 mb-2">🇯🇵 일본어 (유학)</h3>
@@ -145,7 +142,7 @@
 
         <!-- Progress Footer -->
         <footer class="mt-12 text-center">
-            <div class="text-gray-400 text-xs mb-4">© 2025 IE Future Leader. Personal Roadmap Ver 2.1</div>
+            <div class="text-gray-400 text-xs mb-4">© 2025 Industrial Engineering Future Leader. Personal Roadmap Ver 2.1</div>
         </footer>
     </div>
 
@@ -158,10 +155,16 @@
                 btn.classList.add('text-gray-500');
             });
             
-            document.getElementById(tabId).classList.add('active');
+            const selectedContent = document.getElementById(tabId);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+            
             const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.add('bg-indigo-600', 'text-white');
-            activeBtn.classList.remove('text-gray-500');
+            if (activeBtn) {
+                activeBtn.classList.add('bg-indigo-600', 'text-white');
+                activeBtn.classList.remove('text-gray-500');
+            }
         }
 
         // D-Day Calculation (Mid-term: April 28)
@@ -170,10 +173,13 @@
             const today = new Date();
             const diff = target - today;
             const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-            document.getElementById('dday').innerText = days > 0 ? days : 'Day';
+            const ddaySpan = document.getElementById('dday');
+            if (ddaySpan) {
+                ddaySpan.innerText = days > 0 ? days : 'Day';
+            }
         }
 
-        // Handle Task Change & Persistence
+        // Handle Task Change
         function handleTaskChange() {
             updateProgress();
             saveTaskState();
@@ -182,10 +188,15 @@
         function updateProgress() {
             const checks = document.querySelectorAll('.task-check');
             const checked = document.querySelectorAll('.task-check:checked');
+            if (checks.length === 0) return;
+            
             const progress = Math.round((checked.length / checks.length) * 100);
             
-            document.getElementById('total-progress').innerText = progress;
-            document.getElementById('progress-fill').style.width = progress + '%';
+            const progressText = document.getElementById('total-progress');
+            const progressFill = document.getElementById('progress-fill');
+            
+            if (progressText) progressText.innerText = progress;
+            if (progressFill) progressFill.style.width = progress + '%';
         }
 
         // Save state to LocalStorage
@@ -201,11 +212,15 @@
         function loadTaskState() {
             const saved = localStorage.getItem('roadmap_task_states');
             if (saved) {
-                const states = JSON.parse(saved);
-                Object.keys(states).forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.checked = states[id];
-                });
+                try {
+                    const states = JSON.parse(saved);
+                    Object.keys(states).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.checked = states[id];
+                    });
+                } catch (e) {
+                    console.error("Error loading states", e);
+                }
             }
             updateProgress();
         }
