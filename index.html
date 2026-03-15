@@ -8,130 +8,201 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f1f5f9; }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8f7ff; color: #4a4a6a; }
+        
+        /* Lilac Glassmorphism */
+        .glass { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(214, 188, 250, 0.3); 
+        }
+        
+        .lilac-gradient {
+            background: linear-gradient(135deg, #d6bcfa 0%, #b794f4 100%);
+        }
+
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        input[type="checkbox"]:checked + span { text-decoration: line-through; color: #94a3b8; }
-        .custom-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
+        
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        input[type="checkbox"]:checked + div span { 
+            text-decoration: line-through; 
+            color: #a0aec0; 
+        }
+
+        .custom-shadow { 
+            box-shadow: 0 10px 30px -5px rgba(183, 148, 244, 0.15); 
+        }
+
+        /* Responsive Layout for Tablet/PC */
+        @media (min-width: 768px) {
+            .planner-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body class="pb-24">
 
-    <div class="max-w-md mx-auto min-h-screen">
-        <!-- 상단 헤더: D-Day & 달성률 -->
-        <header class="p-8 bg-slate-900 text-white rounded-b-[3.5rem] shadow-2xl mb-8 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+    <div class="max-w-5xl mx-auto min-h-screen px-4">
+        <!-- 상단 헤더: 라일락 테마 대시보드 -->
+        <header class="mt-6 p-8 lilac-gradient text-white rounded-[3rem] shadow-2xl mb-8 relative overflow-hidden">
+            <div class="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
             <div class="relative z-10">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
-                        <h1 class="text-2xl font-black tracking-tighter">DAILY PLAN</h1>
-                        <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em] uppercase">IE Management System</p>
+                        <h1 class="text-3xl font-black tracking-tighter">DAILY PLANNER</h1>
+                        <p class="text-xs text-purple-100 font-bold tracking-[0.2em] uppercase opacity-80">Industrial Engineering Strategy</p>
                     </div>
-                    <div class="text-right">
-                        <span class="block text-[10px] opacity-60 font-bold mb-1">MID-TERM EXAM</span>
-                        <span class="bg-indigo-600 px-4 py-1.5 rounded-full text-xs font-black ring-4 ring-indigo-900/50">D-<span id="dday-val">--</span></span>
+                    <div class="bg-white/20 backdrop-blur-md px-6 py-2 rounded-2xl border border-white/30">
+                        <span class="text-[10px] font-black uppercase tracking-wider block opacity-70">Mid-Term Exam</span>
+                        <span class="text-xl font-black">D-<span id="dday-val">--</span></span>
                     </div>
                 </div>
 
-                <div class="bg-white/5 rounded-3xl p-6 border border-white/10 backdrop-blur-md">
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[10px] opacity-50 font-bold mb-1">TODAY'S TOTAL PROGRESS</p>
-                            <div class="text-4xl font-black"><span id="total-percent">0</span><span class="text-sm font-light ml-1">%</span></div>
-                        </div>
-                        <div class="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-500" style="width: 0%"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                    <div class="bg-white/10 rounded-3xl p-6 border border-white/10">
+                        <p class="text-[10px] opacity-70 font-bold mb-2 tracking-widest uppercase">Today's Performance</p>
+                        <div class="flex items-center gap-4">
+                            <div class="text-5xl font-black"><span id="total-percent">0</span><span class="text-xl font-light">%</span></div>
+                            <div class="flex-1 h-3 bg-black/10 rounded-full overflow-hidden">
+                                <div id="progress-bar" class="h-full bg-white transition-all duration-700" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- 네비게이션 탭 -->
-        <nav class="flex px-6 mb-8">
-            <div class="flex w-full bg-white p-1.5 rounded-2xl custom-shadow border border-slate-200/50">
-                <button onclick="switchTab('daily')" id="tab-daily" class="flex-1 py-3 text-xs font-black rounded-xl transition-all bg-slate-900 text-white">데일리 플래너</button>
-                <button onclick="switchTab('weekly')" id="tab-weekly" class="flex-1 py-3 text-xs font-black rounded-xl transition-all text-slate-400">주간/월간 계획</button>
+        <!-- 네비게이션 -->
+        <nav class="flex mb-8">
+            <div class="flex w-full md:w-auto bg-white/50 p-1.5 rounded-2xl custom-shadow border border-purple-100">
+                <button onclick="switchTab('daily')" id="tab-daily" class="px-8 py-3 text-sm font-black rounded-xl transition-all bg-[#4a4a6a] text-white">데일리</button>
+                <button onclick="switchTab('weekly')" id="tab-weekly" class="px-8 py-3 text-sm font-black rounded-xl transition-all text-purple-400">주간/월간</button>
             </div>
         </nav>
 
-        <!-- [DAILY PLAN] -->
-        <div id="content-daily" class="tab-content active px-6 space-y-8">
-            
-            <!-- 1. 고정 루틴 (시간대별) -->
-            <section>
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Fixed Routine (고정 일과)</h2>
-                </div>
-                <div class="space-y-3">
-                    <label class="glass flex items-center p-4 rounded-2xl custom-shadow border border-slate-100">
-                        <input type="checkbox" class="task-check fixed-task w-5 h-5 rounded-full border-2 border-indigo-500 text-indigo-600" onchange="sync()">
-                        <div class="ml-4">
-                            <span class="block text-sm font-bold text-slate-700">국어 지문 1개 구조도 분석 (메가)</span>
-                            <span class="text-[9px] text-slate-400 font-bold uppercase">07:40 - 08:30</span>
-                        </div>
-                    </label>
-                    <label class="glass flex items-center p-4 rounded-2xl custom-shadow border border-slate-100">
-                        <input type="checkbox" class="task-check fixed-task w-5 h-5 rounded-full border-2 border-indigo-500 text-indigo-600" onchange="sync()">
-                        <div class="ml-4">
-                            <span class="block text-sm font-bold text-slate-700">일본어 단어 10개 + 영단어 복습</span>
-                            <span class="text-[9px] text-slate-400 font-bold uppercase">쉬는 시간/자투리</span>
-                        </div>
-                    </label>
-                    <label class="glass flex items-center p-4 rounded-2xl custom-shadow border border-slate-100">
-                        <input type="checkbox" class="task-check fixed-task w-5 h-5 rounded-full border-2 border-indigo-500 text-indigo-600" onchange="sync()">
-                        <div class="ml-4">
-                            <span class="block text-sm font-bold text-slate-700">시발점 인강 1강 + 워크북 풀기</span>
-                            <span class="text-[9px] text-slate-400 font-bold uppercase">야자/자습 시간</span>
-                        </div>
-                    </label>
-                </div>
-            </section>
+        <!-- [DAILY PLAN] 태블릿 대응 그리드 -->
+        <div id="content-daily" class="tab-content active space-y-8">
+            <div class="planner-grid">
+                <!-- 1. 고정 루틴 -->
+                <section class="space-y-4">
+                    <div class="flex items-center gap-2 mb-2 ml-2">
+                        <div class="w-1.5 h-4 bg-purple-400 rounded-full"></div>
+                        <h2 class="text-sm font-black text-purple-900/60 uppercase tracking-widest">Fixed Routine</h2>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white transition-all hover:translate-y-[-2px]">
+                            <input type="checkbox" class="task-check fixed-task w-6 h-6 rounded-full border-2 border-purple-300 text-purple-500 focus:ring-purple-400" onchange="sync()">
+                            <div class="ml-4 flex-1">
+                                <span class="block text-base font-extrabold text-slate-700 tracking-tight">국어 지문 구조도 분석</span>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter">07:40 - 08:30</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white transition-all hover:translate-y-[-2px]">
+                            <input type="checkbox" class="task-check fixed-task w-6 h-6 rounded-full border-2 border-purple-300 text-purple-500 focus:ring-purple-400" onchange="sync()">
+                            <div class="ml-4 flex-1">
+                                <span class="block text-base font-extrabold text-slate-700 tracking-tight">외국어(일본어/영어) 암기</span>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-indigo-100 text-indigo-500 px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter">자투리 시간</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white transition-all hover:translate-y-[-2px]">
+                            <input type="checkbox" class="task-check fixed-task w-6 h-6 rounded-full border-2 border-purple-300 text-purple-500 focus:ring-purple-400" onchange="sync()">
+                            <div class="ml-4 flex-1">
+                                <span class="block text-base font-extrabold text-slate-700 tracking-tight">시발점 인강 1강 + 워크북</span>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-rose-100 text-rose-500 px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter">야간 자습</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
 
-            <!-- 2. 추가 일정 (사용자가 직접 추가) -->
-            <section>
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Custom Tasks (오늘의 할 일)</h2>
-                </div>
-                
-                <div id="dynamic-tasks" class="space-y-3 mb-4">
-                    <!-- 입력한 일정이 여기에 추가됨 -->
-                </div>
+                <!-- 2. 추가 일정 -->
+                <section class="space-y-4">
+                    <div class="flex items-center gap-2 mb-2 ml-2">
+                        <div class="w-1.5 h-4 bg-indigo-400 rounded-full"></div>
+                        <h2 class="text-sm font-black text-indigo-900/60 uppercase tracking-widest">Today's Special</h2>
+                    </div>
+                    
+                    <div id="dynamic-tasks" class="space-y-3 mb-6">
+                        <!-- 추가 일정이 여기에 렌더링됨 -->
+                    </div>
 
-                <div class="flex gap-2">
-                    <input type="text" id="task-input" placeholder="추가 일정을 입력하세요..." 
-                        class="flex-1 p-4 bg-white rounded-2xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-                    <button onclick="addCustomTask()" class="bg-slate-900 text-white w-14 rounded-2xl flex items-center justify-center hover:bg-indigo-600 transition-colors">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-            </section>
+                    <div class="flex gap-3 bg-white p-3 rounded-[2rem] shadow-sm border border-purple-50">
+                        <input type="text" id="task-input" placeholder="오늘 추가할 일정을 적어보세요..." 
+                            class="flex-1 bg-transparent px-4 text-sm font-bold focus:outline-none">
+                        <button onclick="addCustomTask()" class="bg-purple-500 text-white px-6 py-3 rounded-2xl font-black text-sm hover:bg-purple-600 transition-all shadow-lg shadow-purple-200">
+                            추가
+                        </button>
+                    </div>
+                </section>
+            </div>
 
-            <button onclick="resetDaily()" class="w-full py-4 bg-white text-slate-400 text-[10px] font-black rounded-2xl border border-slate-200 uppercase tracking-widest hover:bg-slate-50">
-                Reset Today's Data
-            </button>
+            <div class="max-w-xs mx-auto pt-8">
+                <button onclick="resetDaily()" class="w-full py-4 text-purple-300 text-[10px] font-black uppercase tracking-[0.3em] hover:text-purple-500 transition-colors">
+                    Reset Today's Progress
+                </button>
+            </div>
         </div>
 
-        <!-- [WEEKLY/MONTHLY PLAN] (기존 내용 유지) -->
-        <div id="content-weekly" class="tab-content px-6 space-y-6">
-            <div class="glass p-6 rounded-[2.5rem] border border-slate-100">
-                <h2 class="text-lg font-black text-slate-800 mb-4 italic underline decoration-indigo-500">Weekly Routine</h2>
-                <div class="space-y-4 text-sm font-semibold text-slate-600">
-                    <p><span class="text-indigo-600 font-black mr-2">월/화/목:</span> 야자 풀가동 + 시발점 1강</p>
-                    <p><span class="text-blue-600 font-black mr-2">수요일:</span> 수학 과외 집중 & 숙제 마무리</p>
-                    <p><span class="text-emerald-600 font-black mr-2">금요일:</span> 자율 5시간 (수학 킬러 공략)</p>
-                    <p><span class="text-orange-600 font-black mr-2">토/일:</span> 과외 + 시발점 몰아듣기(완강)</p>
+        <!-- [WEEKLY/MONTHLY PLAN] -->
+        <div id="content-weekly" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass p-8 rounded-[3rem] border border-white">
+                    <h2 class="text-xl font-black text-purple-900 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-purple-400"></i>
+                        Weekly Routine
+                    </h2>
+                    <div class="space-y-5 text-sm font-bold text-slate-600">
+                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50">
+                            <span class="w-16 text-[10px] font-black text-purple-500 uppercase">Mon/Tue/Thu</span>
+                            <span class="flex-1">야자 풀가동 + 시발점 1강</span>
+                        </div>
+                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50">
+                            <span class="w-16 text-[10px] font-black text-blue-500 uppercase">Wednesday</span>
+                            <span class="flex-1">수학 과외 집중 & 숙제 마무리</span>
+                        </div>
+                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50">
+                            <span class="w-16 text-[10px] font-black text-emerald-500 uppercase">Friday</span>
+                            <span class="flex-1">자율 5시간 (수학 킬러 공략)</span>
+                        </div>
+                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50 border border-purple-200">
+                            <span class="w-16 text-[10px] font-black text-rose-500 uppercase">Weekend</span>
+                            <span class="flex-1 italic">시발점 몰아듣기 완강 목표</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="glass p-6 rounded-[2.5rem] border border-slate-100">
-                <h2 class="text-lg font-black text-slate-800 mb-4 italic underline decoration-rose-500">Subject Strategy</h2>
-                <div class="space-y-2 text-xs font-bold text-slate-500">
-                    <p>• 수학: 시발점 3월 내 완강 목표</p>
-                    <p>• 국어: 등교 직후 50분 구조도 훈련</p>
-                    <p>• 외국어: 영단어 일 50개 / 일본어 N5 10개</p>
+                
+                <div class="glass p-8 rounded-[3rem] border border-white">
+                    <h2 class="text-xl font-black text-purple-900 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye text-rose-400"></i>
+                        Subject Strategy
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-rose-50 border-l-4 border-rose-400">
+                            <p class="text-[10px] font-black text-rose-400 mb-1 uppercase">Math</p>
+                            <p class="text-sm font-bold text-slate-700">시발점 3월 내 완강 & 워크북 병행</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-indigo-50 border-l-4 border-indigo-400">
+                            <p class="text-[10px] font-black text-indigo-400 mb-1 uppercase">Korean</p>
+                            <p class="text-sm font-bold text-slate-700">매일 아침 50분 지문 구조도 체득</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-amber-50 border-l-4 border-amber-400">
+                            <p class="text-[10px] font-black text-amber-400 mb-1 uppercase">Global</p>
+                            <p class="text-sm font-bold text-slate-700">영단어 50개 / 일본어 N5 단어 10개</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -145,16 +216,17 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('content-' + tab).classList.add('active');
             document.querySelectorAll('nav button').forEach(b => {
-                b.classList.remove('bg-slate-900', 'text-white');
-                b.classList.add('text-slate-400');
+                b.classList.remove('bg-[#4a4a6a]', 'text-white');
+                b.classList.add('text-purple-400');
             });
-            document.getElementById('tab-' + tab).classList.add('bg-slate-900', 'text-white');
-            document.getElementById('tab-' + tab).classList.remove('text-slate-400');
+            document.getElementById('tab-' + tab).classList.add('bg-[#4a4a6a]', 'text-white');
+            document.getElementById('tab-' + tab).classList.remove('text-purple-400');
         }
 
         function setDDay() {
             const target = new Date('2025-04-28');
-            const diff = target - new Date();
+            const now = new Date();
+            const diff = target - now;
             const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
             document.getElementById('dday-val').innerText = days > 0 ? days : '0';
         }
@@ -172,6 +244,7 @@
         function toggleCustomTask(index) {
             customTasks[index].done = !customTasks[index].done;
             sync();
+            renderCustomTasks();
         }
 
         function deleteCustomTask(index) {
@@ -185,11 +258,14 @@
             container.innerHTML = '';
             customTasks.forEach((task, i) => {
                 container.innerHTML += `
-                    <div class="glass flex items-center p-4 rounded-2xl custom-shadow border border-slate-100 group">
-                        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleCustomTask(${i})" class="task-check w-5 h-5 rounded-full border-2 border-indigo-500 text-indigo-600">
-                        <span class="ml-4 flex-1 text-sm font-bold text-slate-700 ${task.done ? 'line-through text-slate-400' : ''}">${task.text}</span>
-                        <button onclick="deleteCustomTask(${i})" class="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
+                    <div class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white group animate-fade-in">
+                        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleCustomTask(${i})" 
+                            class="task-check w-6 h-6 rounded-full border-2 border-indigo-300 text-indigo-500 focus:ring-indigo-400">
+                        <div class="ml-4 flex-1">
+                            <span class="text-sm font-bold text-slate-700 ${task.done ? 'line-through text-slate-400' : ''}">${task.text}</span>
+                        </div>
+                        <button onclick="deleteCustomTask(${i})" class="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 p-2">
+                            <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                 `;
@@ -197,13 +273,11 @@
         }
 
         function sync() {
-            // 고정 태스크 상태 저장
             const fixedChecks = document.querySelectorAll('.fixed-task');
             fixedStates = Array.from(fixedChecks).map(c => c.checked);
             localStorage.setItem('roadmap_fixed_states', JSON.stringify(fixedStates));
             localStorage.setItem('roadmap_custom_tasks', JSON.stringify(customTasks));
 
-            // 전체 프로그레스 계산
             const allChecks = document.querySelectorAll('.task-check');
             const doneChecks = document.querySelectorAll('.task-check:checked');
             const percent = allChecks.length > 0 ? Math.round((doneChecks.length / allChecks.length) * 100) : 0;
@@ -222,8 +296,8 @@
         }
 
         function resetDaily() {
-            if (confirm("오늘의 모든 성취도와 추가 일정을 초기화할까요?")) {
-                fixedStates = [false, false, false];
+            if (confirm("오늘의 모든 데이터를 초기화할까요?")) {
+                fixedStates = [false, false, false];ㅁ
                 customTasks = [];
                 localStorage.removeItem('roadmap_fixed_states');
                 localStorage.removeItem('roadmap_custom_tasks');
