@@ -3,42 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스마트 급식 알레르기 알리미</title>
+    <title>대명여고 스마트 급식 알리미</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
         body { font-family: 'Pretendard', sans-serif; }
+
+        /* 부드러운 메뉴 등장 애니메이션 */
+        .meal-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 알레르기 발견 시 깜빡이고 부드럽게 흔들리는 효과 */
+        @keyframes alertPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .danger-highlight {
+            background-color: #fef2f2;
+            border-color: #fca5a5;
+            color: #b91c1c;
+            font-weight: 700;
+            animation: alertPulse 1.5s infinite ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-xs">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h1 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
-                🍱 스마트 급식 알리미
-            </h1>
-            <select id="monthSelect" class="bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="7">2026년 7월 급식</option>
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-5xl mx-auto px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">💙</span>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">대명여자고등학교</h1>
+                    <p class="text-xs text-blue-200">스마트 급식 알레르기 알리미</p>
+                </div>
+            </div>
+            <select id="monthSelect" class="bg-blue-800 text-white border border-blue-700 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 cursor-pointer">
+                <option value="7">2026년 7월 식단표</option>
             </select>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 mt-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+    <main class="max-w-5xl mx-auto px-5 mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        <section class="md:col-span-1 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-fit sticky top-24">
-            <h2 class="font-bold text-lg mb-3 flex items-center gap-1.5 text-slate-900">
-                ⚠️ 나의 알레르기
-            </h2>
-            <p class="text-xs text-slate-500 mb-4">해당하는 성분을 선택하면 급식표에서 강조됩니다.</p>
+        <section class="md:col-span-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit sticky top-24">
+            <div class="flex items-center gap-2 mb-2 border-b border-slate-100 pb-3">
+                <span class="text-xl text-blue-600">⚠️</span>
+                <h2 class="font-bold text-lg text-slate-900">나의 알레르기 선택</h2>
+            </div>
+            <p class="text-xs text-slate-400 mb-4 font-medium">조심해야 하는 성분을 체크해 주세요.</p>
             
-            <div class="space-y-2 max-h-[60vh] overflow-y-auto pr-1 text-sm" id="allergyConfig">
+            <div class="grid grid-cols-1 gap-1.5 max-h-[55vh] overflow-y-auto pr-1 text-sm" id="allergyConfig">
                 </div>
         </section>
 
-        <section class="md:col-span-3 space-y-4">
+        <section class="md:col-span-2 space-y-4">
             <div class="flex justify-between items-center mb-2">
-                <h2 class="font-bold text-lg text-slate-900" id="tableTitle">주간 식단 안내</h2>
-                <span class="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-medium">숫자는 알레르기 유발 원인 물질 번호입니다.</span>
+                <h2 class="font-bold text-xl text-slate-900 flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    월간 식단 안내
+                </h2>
+                <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-xl font-semibold">
+                    * 메뉴 뒤 숫자는 알레르기 번호입니다
+                </span>
             </div>
             
             <div id="mealContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -48,70 +78,66 @@
     </main>
 
     <script>
-        // 1. 알레르기 원인 물질 번호 매핑 (식약처 기준)
+        // 식약처 기준 알레르기 유발 물질 매핑
         const allergyMap = {
-            1: "난류(가금류)", 2: "우유", 3: "메밀", 4: "땅콩", 5: "대두", 
+            1: "난류", 2: "우유", 3: "메밀", 4: "땅콩", 5: "대두", 
             6: "밀", 7: "고등어", 8: "게", 9: "새우", 10: "돼지고기", 
             11: "복숭아", 12: "토마토", 13: "아황산류", 14: "호두", 
-            15: "닭고기", 16: "쇠고기", 17: "오징어", 18: "조개류(굴,전복,홍합 포함)", 19: "잣"
+            15: "닭고기", 16: "쇠고기", 17: "오징어", 18: "조개류", 19: "잣"
         };
 
-        // 2. 급식 데이터 (매달 이 부분만 규칙에 맞게 새로 짜서 교체해주면 끝!)
-        // 제공해주신 이미지의 13일~17일 데이터를 샘플로 넣었습니다.
+        // [★ 매달 이 부분 데이터만 새로 짜서 바꾸면 끝! ★]
         const mealData = {
             "7": [
                 {
                     date: "13일 (월)",
-                    lunch: ["기장밥", "전주식콩나물국(5.6.13)", "치킨까스(5.6.13.15)", "모둠메추리알장조림(1.2.5.6.13)", "미역줄기볶음(5.6.13)", "배추김치(9.13)", "초코빅파이(1.2.6)"],
+                    lunch: ["기장밥", "전주식콩나물국(5.6.13)", "치킨까스(5.6.13.15)", "모둠메추리알조림(1.2.5.6.13)", "미역줄기볶음(5.6.13)", "배추김치(9.13)", "초코빅파이(1.2.6)"],
                     dinner: ["김치제육덮밥(5.6.9.10.13)", "김말이&고로케(1.2.5.6.10.13)", "깍두기(9.13)", "디저트주스"]
                 },
                 {
                     date: "14일 (화)",
-                    lunch: ["혼합잡곡밥", "맑은순두부탕(1.5.6.13)", "오징어제육볶음(5.6.10.13)", "어묵부추무침(5.6.9.13.17)", "시즈닝감자튀김(1.2.5.6.13)", "배추김치(9.13)", "디저트쿠키 또는 제철과일"],
-                    dinner: ["찰보리밥", "크림스프(1.2.5.6.10.13)", "함박스테이크&소스(1.2.5.6.10.13.15)", "코울슬로(5.6.13)", "알감자버터구이(1.5.6.13)", "깍두기(9.13)"]
+                    lunch: ["혼합잡곡밥", "맑은순두부탕(1.5.6.13)", "오징어제육볶음(5.6.10.13)", "어묵부추무침(5.6.9.13.17)", "시즈닝감자튀김(1.2.5.6.13)", "배추김치(9.13)"],
+                    dinner: ["찰보리밥", "크림스프(1.2.5.6.10.13)", "함박스테이크&소스(1.2.5.6.10.13.15)", "코울슬로(5.6.13)", "깍두기(9.13)"]
                 },
                 {
                     date: "15일 (수)",
-                    lunch: ["찰밥", "돼지국밥(5.6.10.13)", "한돈숙주볶음(5.6.10.13)", "부추오이무침(5.6.13)", "양파장아찌(5.6.13)", "깍두기(9.13)", "디저트쿠키/조각파인애플"],
+                    lunch: ["찰밥", "돼지국밥(5.6.10.13)", "한돈숙주볶음(5.6.10.13)", "부추오이무침(5.6.13)", "깍두기(9.13)"],
                     dinner: ["지코바덮밥(5.6.13.15)", "감자튀김(5.6.13)", "깍두기(9.13)", "요구르트(2)"]
                 },
                 {
                     date: "16일 (목)",
-                    lunch: ["흑미밥", "맑은소고기무국(5.6.13.16)", "미트볼볶음(5.6.10.13.15)", "분식집떡볶이(5.6.9.13)", "건새우호박볶음(5.6.9.13)", "배추김치(9.13)", "구운링도넛(1.2)"],
-                    dinner: ["혼합잡곡밥", "고추장찌개(5.6.10.13)", "파닭불고기(5.6.10.13)", "매콤두부조림(5.6.13)", "묵은지도토리묵무침(5.6.9.13)", "깍두기(9.13)"]
+                    lunch: ["흑미밥", "맑은소고기무국(5.6.13.16)", "미트볼볶음(5.6.10.13.15)", "분식집떡볶이(5.6.9.13)", "배추김치(9.13)"],
+                    dinner: ["혼합잡곡밥", "고추장찌개(5.6.10.13)", "파닭불고기(5.6.10.13)", "매콤두부조림(5.6.13)", "깍두기(9.13)"]
                 },
                 {
                     date: "17일 (금)",
                     isHoliday: true,
-                    holidayName: "제헌절"
+                    holidayName: "제헌절 🇰🇷"
                 }
             ]
         };
 
-        // 선택된 알레르기 번호들을 담을 세트
         let selectedAllergies = new Set();
 
-        // 초기화 함수
         function init() {
             renderAllergyOptions();
             renderMeals("7");
             
-            // 이벤트 리스너 설정
             document.getElementById('monthSelect').addEventListener('change', (e) => {
                 renderMeals(e.target.value);
             });
         }
 
-        // 왼쪽 알레르기 선택 체크박스 생성
+        // 왼쪽 알레르기 리스트 생성 (파란색 포인트 디자인)
         function renderAllergyOptions() {
             const container = document.getElementById('allergyConfig');
             container.innerHTML = '';
             
             Object.keys(allergyMap).forEach(num => {
                 const label = document.createElement('label');
-                label.className = "flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors";
+                label.className = "flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50 cursor-pointer transition-all duration-200 select-none group";
                 label.innerHTML = `
-                    <input type="checkbox" value="${num}" class="allergy-checkbox w-4 h-4 text-indigo-600 border-slate-300 rounded-sm focus:ring-indigo-500">
+                    <input type="checkbox" value="${num}" class="w-4 h-4 text-blue-600 border-slate-300 rounded-md focus:ring-blue-500 cursor-pointer transition-transform group-hover:scale-110">
                     <span class="text-slate-700 font-medium">${num}. ${allergyMap[num]}</span>
                 `;
                 
@@ -128,14 +154,14 @@
             });
         }
 
-        // 메뉴 이름에서 알레르기 번호 추출하는 함수 (예: "돼지국밥(5.6.10.13)" -> [5, 6, 10, 13])
+        // 괄호 안의 번호 추출기
         function parseAllergies(menuStr) {
             const match = menuStr.match(/\(([^)]+)\)/);
             if (!match) return [];
             return match[1].split('.').map(num => parseInt(num.trim()));
         }
 
-        // 급식 카드 렌더링
+        // 급식 카드 화면에 그리기
         function renderMeals(month) {
             const container = document.getElementById('mealContainer');
             container.innerHTML = '';
@@ -144,16 +170,15 @@
             
             list.forEach(day => {
                 const card = document.createElement('div');
-                card.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-xs transition-all flex flex-col justify-between";
+                card.className = "meal-card bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between";
                 
-                // 공휴일 처리
                 if (day.isHoliday) {
-                    card.className += " border-red-200 bg-red-50/30 opacity-75";
+                    card.className += " border-blue-200 bg-blue-50/20";
                     card.innerHTML = `
                         <div>
-                            <div class="font-bold text-slate-900 border-b border-slate-200 pb-2 mb-3 text-red-600">${day.date}</div>
-                            <div class="text-center py-12 text-red-500 font-bold flex flex-col items-center gap-2">
-                                <span>🇰🇷</span> ${day.holidayName}
+                            <div class="font-bold text-blue-900 border-b border-blue-100 pb-2 mb-3">${day.date}</div>
+                            <div class="text-center py-12 text-blue-600 font-bold text-lg">
+                                ${day.holidayName}
                             </div>
                         </div>
                     `;
@@ -161,29 +186,29 @@
                     return;
                 }
 
-                // 식단 텍스트 가공 및 위험 요소 체크
                 const createSectionHtml = (title, menuList) => {
                     if (!menuList || menuList.length === 0) return '';
                     
-                    let hasTotalDanger = false;
+                    let hasDanger = false;
                     const itemsHtml = menuList.map(item => {
                         const itemAllergies = parseAllergies(item);
-                        // 선택한 알레르기 물질이 포함되어 있는지 확인
                         const isDangerous = itemAllergies.some(num => selectedAllergies.has(num));
                         
-                        if (isDangerous) hasTotalDanger = true;
+                        if (isDangerous) hasDanger = true;
                         
                         return `
-                            <li class="py-1 px-1.5 rounded-md transition-colors ${isDangerous ? 'bg-red-50 text-red-700 font-semibold ring-1 ring-red-200/60' : 'text-slate-600'}">
+                            <li class="py-1 px-2 rounded-lg transition-all duration-300 ${isDangerous ? 'danger-highlight' : 'text-slate-600'}">
                                 ${item}
                             </li>
                         `;
                     }).join('');
 
                     return `
-                        <div class="mt-3 p-3 rounded-xl bg-slate-50/50 border ${hasTotalDanger ? 'border-red-100 bg-red-50/10' : 'border-slate-100'}">
-                            <h4 class="text-xs font-bold ${hasTotalDanger ? 'text-red-600' : 'text-slate-400'} uppercase tracking-wider mb-1.5">${title}</h4>
-                            <ul class="text-sm space-y-0.5">${itemsHtml}</ul>
+                        <div class="mt-3 p-3 rounded-xl border ${hasDanger ? 'border-red-200 bg-red-50/30' : 'border-slate-100 bg-slate-50/50'}">
+                            <h4 class="text-xs font-bold ${hasDanger ? 'text-red-500' : 'text-blue-600'} mb-1.5 flex items-center gap-1">
+                                ${title}
+                            </h4>
+                            <ul class="text-sm space-y-1">${itemsHtml}</ul>
                         </div>
                     `;
                 };
@@ -193,8 +218,8 @@
 
                 card.innerHTML = `
                     <div>
-                        <div class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-1 flex justify-between items-center">
-                            <span>${day.date}</span>
+                        <div class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-1">
+                            ${day.date}
                         </div>
                         <div class="space-y-1">${lunchHtml}${dinnerHtml}</div>
                     </div>
@@ -204,7 +229,6 @@
             });
         }
 
-        // 페이지 로드 시 실행
         window.onload = init;
     </script>
 </body>
