@@ -3,316 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025 Smart Study Planner</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>스마트 급식 알레르기 알리미</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f8f7ff; color: #4a4a6a; }
-        
-        /* Lilac Glassmorphism */
-        .glass { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(214, 188, 250, 0.3); 
-        }
-        
-        .lilac-gradient {
-            background: linear-gradient(135deg, #d6bcfa 0%, #b794f4 100%);
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
-        
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-
-        input[type="checkbox"]:checked + div span { 
-            text-decoration: line-through; 
-            color: #a0aec0; 
-        }
-
-        .custom-shadow { 
-            box-shadow: 0 10px 30px -5px rgba(183, 148, 244, 0.15); 
-        }
-
-        /* Responsive Layout for Tablet/PC */
-        @media (min-width: 768px) {
-            .planner-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1.5rem;
-            }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; }
     </style>
 </head>
-<body class="pb-24">
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
-    <div class="max-w-5xl mx-auto min-h-screen px-4">
-        <!-- 상단 헤더: 라일락 테마 대시보드 -->
-        <header class="mt-6 p-8 lilac-gradient text-white rounded-[3rem] shadow-2xl mb-8 relative overflow-hidden">
-            <div class="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
-            <div class="relative z-10">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div>
-                        <h1 class="text-3xl font-black tracking-tighter">DAILY PLANNER</h1>
-                        <p class="text-xs text-purple-100 font-bold tracking-[0.2em] uppercase opacity-80">Industrial Engineering Strategy</p>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-md px-6 py-2 rounded-2xl border border-white/30">
-                        <span class="text-[10px] font-black uppercase tracking-wider block opacity-70">Mid-Term Exam</span>
-                        <span class="text-xl font-black">D-<span id="dday-val">--</span></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                    <div class="bg-white/10 rounded-3xl p-6 border border-white/10">
-                        <p class="text-[10px] opacity-70 font-bold mb-2 tracking-widest uppercase">Today's Performance</p>
-                        <div class="flex items-center gap-4">
-                            <div class="text-5xl font-black"><span id="total-percent">0</span><span class="text-xl font-light">%</span></div>
-                            <div class="flex-1 h-3 bg-black/10 rounded-full overflow-hidden">
-                                <div id="progress-bar" class="h-full bg-white transition-all duration-700" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- 네비게이션 -->
-        <nav class="flex mb-8">
-            <div class="flex w-full md:w-auto bg-white/50 p-1.5 rounded-2xl custom-shadow border border-purple-100">
-                <button onclick="switchTab('daily')" id="tab-daily" class="px-8 py-3 text-sm font-black rounded-xl transition-all bg-[#4a4a6a] text-white">데일리</button>
-                <button onclick="switchTab('weekly')" id="tab-weekly" class="px-8 py-3 text-sm font-black rounded-xl transition-all text-purple-400">주간/월간</button>
-            </div>
-        </nav>
-
-        <!-- [DAILY PLAN] 태블릿 대응 그리드 -->
-        <div id="content-daily" class="tab-content active space-y-8">
-            <div class="planner-grid">
-                <!-- 1. 고정 루틴 -->
-                <section class="space-y-4">
-                    <div class="flex items-center gap-2 mb-2 ml-2">
-                        <div class="w-1.5 h-4 bg-purple-400 rounded-full"></div>
-                        <h2 class="text-sm font-black text-purple-900/60 uppercase tracking-widest">Fixed Routine</h2>
-                    </div>
-                    <div class="space-y-3">
-                        <label class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white transition-all hover:translate-y-[-2px]">
-                            <input type="checkbox" class="task-check fixed-task w-6 h-6 rounded-full border-2 border-purple-300 text-purple-500 focus:ring-purple-400" onchange="sync()">
-                            <div class="ml-4 flex-1">
-                                <span class="block text-base font-extrabold text-slate-700 tracking-tight">국어 지문 구조도 분석</span>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter">07:40 - 08:30</span>
-                                </div>
-                            </div>
-                        </label>
-                        <label class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white transition-all hover:translate-y-[-2px]">
-                            <input type="checkbox" class="task-check fixed-task w-6 h-6 rounded-full border-2 border-purple-300 text-purple-500 focus:ring-purple-400" onchange="sync()">
-                            <div class="ml-4 flex-1">
-                                <span class="block text-base font-extrabold text-slate-700 tracking-tight">외국어(일본어/영어) 암기</span>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-[10px] bg-indigo-100 text-indigo-500 px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter">자투리 시간</span>
-                                </div>
-                            </div>
-                        </label>
-                        <label class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white transition-all hover:translate-y-[-2px]">
-                            <input type="checkbox" class="task-check fixed-task w-6 h-6 rounded-full border-2 border-purple-300 text-purple-500 focus:ring-purple-400" onchange="sync()">
-                            <div class="ml-4 flex-1">
-                                <span class="block text-base font-extrabold text-slate-700 tracking-tight">시발점 인강 1강 + 워크북</span>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-[10px] bg-rose-100 text-rose-500 px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter">야간 자습</span>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-                </section>
-
-                <!-- 2. 추가 일정 -->
-                <section class="space-y-4">
-                    <div class="flex items-center gap-2 mb-2 ml-2">
-                        <div class="w-1.5 h-4 bg-indigo-400 rounded-full"></div>
-                        <h2 class="text-sm font-black text-indigo-900/60 uppercase tracking-widest">Today's Special</h2>
-                    </div>
-                    
-                    <div id="dynamic-tasks" class="space-y-3 mb-6">
-                        <!-- 추가 일정이 여기에 렌더링됨 -->
-                    </div>
-
-                    <div class="flex gap-3 bg-white p-3 rounded-[2rem] shadow-sm border border-purple-50">
-                        <input type="text" id="task-input" placeholder="오늘 추가할 일정을 적어보세요..." 
-                            class="flex-1 bg-transparent px-4 text-sm font-bold focus:outline-none">
-                        <button onclick="addCustomTask()" class="bg-purple-500 text-white px-6 py-3 rounded-2xl font-black text-sm hover:bg-purple-600 transition-all shadow-lg shadow-purple-200">
-                            추가
-                        </button>
-                    </div>
-                </section>
-            </div>
-
-            <div class="max-w-xs mx-auto pt-8">
-                <button onclick="resetDaily()" class="w-full py-4 text-purple-300 text-[10px] font-black uppercase tracking-[0.3em] hover:text-purple-500 transition-colors">
-                    Reset Today's Progress
-                </button>
-            </div>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-xs">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h1 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+                🍱 스마트 급식 알리미
+            </h1>
+            <select id="monthSelect" class="bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="7">2026년 7월 급식</option>
+            </select>
         </div>
+    </header>
 
-        <!-- [WEEKLY/MONTHLY PLAN] -->
-        <div id="content-weekly" class="tab-content space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="glass p-8 rounded-[3rem] border border-white">
-                    <h2 class="text-xl font-black text-purple-900 mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-check text-purple-400"></i>
-                        Weekly Routine
-                    </h2>
-                    <div class="space-y-5 text-sm font-bold text-slate-600">
-                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50">
-                            <span class="w-16 text-[10px] font-black text-purple-500 uppercase">Mon/Tue/Thu</span>
-                            <span class="flex-1">야자 풀가동 + 시발점 1강</span>
-                        </div>
-                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50">
-                            <span class="w-16 text-[10px] font-black text-blue-500 uppercase">Wednesday</span>
-                            <span class="flex-1">수학 과외 집중 & 숙제 마무리</span>
-                        </div>
-                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50">
-                            <span class="w-16 text-[10px] font-black text-emerald-500 uppercase">Friday</span>
-                            <span class="flex-1">자율 5시간 (수학 킬러 공략)</span>
-                        </div>
-                        <div class="flex items-center gap-4 p-3 rounded-2xl bg-white/50 border border-purple-200">
-                            <span class="w-16 text-[10px] font-black text-rose-500 uppercase">Weekend</span>
-                            <span class="flex-1 italic">시발점 몰아듣기 완강 목표</span>
-                        </div>
-                    </div>
+    <main class="max-w-4xl mx-auto px-4 mt-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        <section class="md:col-span-1 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-fit sticky top-24">
+            <h2 class="font-bold text-lg mb-3 flex items-center gap-1.5 text-slate-900">
+                ⚠️ 나의 알레르기
+            </h2>
+            <p class="text-xs text-slate-500 mb-4">해당하는 성분을 선택하면 급식표에서 강조됩니다.</p>
+            
+            <div class="space-y-2 max-h-[60vh] overflow-y-auto pr-1 text-sm" id="allergyConfig">
                 </div>
-                
-                <div class="glass p-8 rounded-[3rem] border border-white">
-                    <h2 class="text-xl font-black text-purple-900 mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-bullseye text-rose-400"></i>
-                        Subject Strategy
-                    </h2>
-                    <div class="space-y-4">
-                        <div class="p-4 rounded-2xl bg-rose-50 border-l-4 border-rose-400">
-                            <p class="text-[10px] font-black text-rose-400 mb-1 uppercase">Math</p>
-                            <p class="text-sm font-bold text-slate-700">시발점 3월 내 완강 & 워크북 병행</p>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-indigo-50 border-l-4 border-indigo-400">
-                            <p class="text-[10px] font-black text-indigo-400 mb-1 uppercase">Korean</p>
-                            <p class="text-sm font-bold text-slate-700">매일 아침 50분 지문 구조도 체득</p>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-amber-50 border-l-4 border-amber-400">
-                            <p class="text-[10px] font-black text-amber-400 mb-1 uppercase">Global</p>
-                            <p class="text-sm font-bold text-slate-700">영단어 50개 / 일본어 N5 단어 10개</p>
-                        </div>
-                    </div>
-                </div>
+        </section>
+
+        <section class="md:col-span-3 space-y-4">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="font-bold text-lg text-slate-900" id="tableTitle">주간 식단 안내</h2>
+                <span class="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-medium">숫자는 알레르기 유발 원인 물질 번호입니다.</span>
             </div>
-        </div>
-    </div>
+            
+            <div id="mealContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                </div>
+        </section>
+
+    </main>
 
     <script>
-        let customTasks = JSON.parse(localStorage.getItem('roadmap_custom_tasks')) || [];
-        let fixedStates = JSON.parse(localStorage.getItem('roadmap_fixed_states')) || [false, false, false];
+        // 1. 알레르기 원인 물질 번호 매핑 (식약처 기준)
+        const allergyMap = {
+            1: "난류(가금류)", 2: "우유", 3: "메밀", 4: "땅콩", 5: "대두", 
+            6: "밀", 7: "고등어", 8: "게", 9: "새우", 10: "돼지고기", 
+            11: "복숭아", 12: "토마토", 13: "아황산류", 14: "호두", 
+            15: "닭고기", 16: "쇠고기", 17: "오징어", 18: "조개류(굴,전복,홍합 포함)", 19: "잣"
+        };
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('content-' + tab).classList.add('active');
-            document.querySelectorAll('nav button').forEach(b => {
-                b.classList.remove('bg-[#4a4a6a]', 'text-white');
-                b.classList.add('text-purple-400');
-            });
-            document.getElementById('tab-' + tab).classList.add('bg-[#4a4a6a]', 'text-white');
-            document.getElementById('tab-' + tab).classList.remove('text-purple-400');
-        }
+        // 2. 급식 데이터 (매달 이 부분만 규칙에 맞게 새로 짜서 교체해주면 끝!)
+        // 제공해주신 이미지의 13일~17일 데이터를 샘플로 넣었습니다.
+        const mealData = {
+            "7": [
+                {
+                    date: "13일 (월)",
+                    lunch: ["기장밥", "전주식콩나물국(5.6.13)", "치킨까스(5.6.13.15)", "모둠메추리알장조림(1.2.5.6.13)", "미역줄기볶음(5.6.13)", "배추김치(9.13)", "초코빅파이(1.2.6)"],
+                    dinner: ["김치제육덮밥(5.6.9.10.13)", "김말이&고로케(1.2.5.6.10.13)", "깍두기(9.13)", "디저트주스"]
+                },
+                {
+                    date: "14일 (화)",
+                    lunch: ["혼합잡곡밥", "맑은순두부탕(1.5.6.13)", "오징어제육볶음(5.6.10.13)", "어묵부추무침(5.6.9.13.17)", "시즈닝감자튀김(1.2.5.6.13)", "배추김치(9.13)", "디저트쿠키 또는 제철과일"],
+                    dinner: ["찰보리밥", "크림스프(1.2.5.6.10.13)", "함박스테이크&소스(1.2.5.6.10.13.15)", "코울슬로(5.6.13)", "알감자버터구이(1.5.6.13)", "깍두기(9.13)"]
+                },
+                {
+                    date: "15일 (수)",
+                    lunch: ["찰밥", "돼지국밥(5.6.10.13)", "한돈숙주볶음(5.6.10.13)", "부추오이무침(5.6.13)", "양파장아찌(5.6.13)", "깍두기(9.13)", "디저트쿠키/조각파인애플"],
+                    dinner: ["지코바덮밥(5.6.13.15)", "감자튀김(5.6.13)", "깍두기(9.13)", "요구르트(2)"]
+                },
+                {
+                    date: "16일 (목)",
+                    lunch: ["흑미밥", "맑은소고기무국(5.6.13.16)", "미트볼볶음(5.6.10.13.15)", "분식집떡볶이(5.6.9.13)", "건새우호박볶음(5.6.9.13)", "배추김치(9.13)", "구운링도넛(1.2)"],
+                    dinner: ["혼합잡곡밥", "고추장찌개(5.6.10.13)", "파닭불고기(5.6.10.13)", "매콤두부조림(5.6.13)", "묵은지도토리묵무침(5.6.9.13)", "깍두기(9.13)"]
+                },
+                {
+                    date: "17일 (금)",
+                    isHoliday: true,
+                    holidayName: "제헌절"
+                }
+            ]
+        };
 
-        function setDDay() {
-            const target = new Date('2025-04-28');
-            const now = new Date();
-            const diff = target - now;
-            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-            document.getElementById('dday-val').innerText = days > 0 ? days : '0';
-        }
+        // 선택된 알레르기 번호들을 담을 세트
+        let selectedAllergies = new Set();
 
-        function addCustomTask() {
-            const input = document.getElementById('task-input');
-            if (!input.value.trim()) return;
+        // 초기화 함수
+        function init() {
+            renderAllergyOptions();
+            renderMeals("7");
             
-            customTasks.push({ text: input.value, done: false });
-            input.value = '';
-            renderCustomTasks();
-            sync();
+            // 이벤트 리스너 설정
+            document.getElementById('monthSelect').addEventListener('change', (e) => {
+                renderMeals(e.target.value);
+            });
         }
 
-        function toggleCustomTask(index) {
-            customTasks[index].done = !customTasks[index].done;
-            sync();
-            renderCustomTasks();
-        }
-
-        function deleteCustomTask(index) {
-            customTasks.splice(index, 1);
-            renderCustomTasks();
-            sync();
-        }
-
-        function renderCustomTasks() {
-            const container = document.getElementById('dynamic-tasks');
+        // 왼쪽 알레르기 선택 체크박스 생성
+        function renderAllergyOptions() {
+            const container = document.getElementById('allergyConfig');
             container.innerHTML = '';
-            customTasks.forEach((task, i) => {
-                container.innerHTML += `
-                    <div class="glass flex items-center p-5 rounded-[2rem] custom-shadow border border-white group animate-fade-in">
-                        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleCustomTask(${i})" 
-                            class="task-check w-6 h-6 rounded-full border-2 border-indigo-300 text-indigo-500 focus:ring-indigo-400">
-                        <div class="ml-4 flex-1">
-                            <span class="text-sm font-bold text-slate-700 ${task.done ? 'line-through text-slate-400' : ''}">${task.text}</span>
+            
+            Object.keys(allergyMap).forEach(num => {
+                const label = document.createElement('label');
+                label.className = "flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors";
+                label.innerHTML = `
+                    <input type="checkbox" value="${num}" class="allergy-checkbox w-4 h-4 text-indigo-600 border-slate-300 rounded-sm focus:ring-indigo-500">
+                    <span class="text-slate-700 font-medium">${num}. ${allergyMap[num]}</span>
+                `;
+                
+                label.querySelector('input').addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedAllergies.add(parseInt(num));
+                    } else {
+                        selectedAllergies.delete(parseInt(num));
+                    }
+                    renderMeals(document.getElementById('monthSelect').value);
+                });
+                
+                container.appendChild(label);
+            });
+        }
+
+        // 메뉴 이름에서 알레르기 번호 추출하는 함수 (예: "돼지국밥(5.6.10.13)" -> [5, 6, 10, 13])
+        function parseAllergies(menuStr) {
+            const match = menuStr.match(/\(([^)]+)\)/);
+            if (!match) return [];
+            return match[1].split('.').map(num => parseInt(num.trim()));
+        }
+
+        // 급식 카드 렌더링
+        function renderMeals(month) {
+            const container = document.getElementById('mealContainer');
+            container.innerHTML = '';
+            
+            const list = mealData[month] || [];
+            
+            list.forEach(day => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-xs transition-all flex flex-col justify-between";
+                
+                // 공휴일 처리
+                if (day.isHoliday) {
+                    card.className += " border-red-200 bg-red-50/30 opacity-75";
+                    card.innerHTML = `
+                        <div>
+                            <div class="font-bold text-slate-900 border-b border-slate-200 pb-2 mb-3 text-red-600">${day.date}</div>
+                            <div class="text-center py-12 text-red-500 font-bold flex flex-col items-center gap-2">
+                                <span>🇰🇷</span> ${day.holidayName}
+                            </div>
                         </div>
-                        <button onclick="deleteCustomTask(${i})" class="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 p-2">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                    `;
+                    container.appendChild(card);
+                    return;
+                }
+
+                // 식단 텍스트 가공 및 위험 요소 체크
+                const createSectionHtml = (title, menuList) => {
+                    if (!menuList || menuList.length === 0) return '';
+                    
+                    let hasTotalDanger = false;
+                    const itemsHtml = menuList.map(item => {
+                        const itemAllergies = parseAllergies(item);
+                        // 선택한 알레르기 물질이 포함되어 있는지 확인
+                        const isDangerous = itemAllergies.some(num => selectedAllergies.has(num));
+                        
+                        if (isDangerous) hasTotalDanger = true;
+                        
+                        return `
+                            <li class="py-1 px-1.5 rounded-md transition-colors ${isDangerous ? 'bg-red-50 text-red-700 font-semibold ring-1 ring-red-200/60' : 'text-slate-600'}">
+                                ${item}
+                            </li>
+                        `;
+                    }).join('');
+
+                    return `
+                        <div class="mt-3 p-3 rounded-xl bg-slate-50/50 border ${hasTotalDanger ? 'border-red-100 bg-red-50/10' : 'border-slate-100'}">
+                            <h4 class="text-xs font-bold ${hasTotalDanger ? 'text-red-600' : 'text-slate-400'} uppercase tracking-wider mb-1.5">${title}</h4>
+                            <ul class="text-sm space-y-0.5">${itemsHtml}</ul>
+                        </div>
+                    `;
+                };
+
+                const lunchHtml = createSectionHtml('☀️ 중식', day.lunch);
+                const dinnerHtml = createSectionHtml('🌙 석식', day.dinner);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-1 flex justify-between items-center">
+                            <span>${day.date}</span>
+                        </div>
+                        <div class="space-y-1">${lunchHtml}${dinnerHtml}</div>
                     </div>
                 `;
-            });
-        }
-
-        function sync() {
-            const fixedChecks = document.querySelectorAll('.fixed-task');
-            fixedStates = Array.from(fixedChecks).map(c => c.checked);
-            localStorage.setItem('roadmap_fixed_states', JSON.stringify(fixedStates));
-            localStorage.setItem('roadmap_custom_tasks', JSON.stringify(customTasks));
-
-            const allChecks = document.querySelectorAll('.task-check');
-            const doneChecks = document.querySelectorAll('.task-check:checked');
-            const percent = allChecks.length > 0 ? Math.round((doneChecks.length / allChecks.length) * 100) : 0;
-
-            document.getElementById('total-percent').innerText = percent;
-            document.getElementById('progress-bar').style.width = percent + '%';
-        }
-
-        function load() {
-            const fixedChecks = document.querySelectorAll('.fixed-task');
-            fixedChecks.forEach((c, i) => {
-                if (fixedStates[i]) c.checked = true;
-            });
-            renderCustomTasks();
-            sync();
-        }
-
-        function resetDaily() {
-            if (confirm("오늘의 모든 데이터를 초기화할까요?")) {
-                fixedStates = [false, false, false];ㅁ
-                customTasks = [];
-                localStorage.removeItem('roadmap_fixed_states');
-                localStorage.removeItem('roadmap_custom_tasks');
                 
-                const fixedChecks = document.querySelectorAll('.fixed-task');
-                fixedChecks.forEach(c => c.checked = false);
-                renderCustomTasks();
-                sync();
-            }
+                container.appendChild(card);
+            });
         }
 
-        window.onload = () => {
-            setDDay();
-            load();
-        }
+        // 페이지 로드 시 실행
+        window.onload = init;
     </script>
 </body>
 </html>
