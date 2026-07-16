@@ -2,115 +2,127 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>대명여고 스마트 급식 알리미</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
-        body { font-family: 'Pretendard', sans-serif; }
-
-        /* 부드러운 메뉴 등장 애니메이션 */
-        .meal-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+        body { 
+            font-family: 'Pretendard', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* 모바일 터치 시 파란 박스 방지 */
         }
 
-        /* 알레르기 발견 시 깜빡이고 부드럽게 흔들리는 효과 */
-        @keyframes alertPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+        /* 스무스한 모바일 토글 애니메이션 */
+        .bottom-sheet {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .danger-highlight {
-            background-color: #fef2f2;
-            border-color: #fca5a5;
-            color: #b91c1c;
+        .sheet-hidden {
+            transform: translateY(calc(100% - 60px)); /* 타이틀만 빼고 아래로 숨김 */
+        }
+
+        /* 알레르기 위험 메뉴 흔들림(Vibration) 모션 */
+        @keyframes subtleShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        .danger-card-highlight {
+            border-color: #fca5a5 !important;
+            background-color: #fef2f2 !important;
+        }
+        .danger-item-highlight {
+            background-color: #fee2e2;
+            color: #dc2626;
             font-weight: 700;
-            animation: alertPulse 1.5s infinite ease-in-out;
-            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
+            animation: subtleShake 0.4s ease-in-out 2;
+            border-left: 3px solid #dc2626;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-28">
 
-    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 transition-all duration-300">
-        <div class="max-w-5xl mx-auto px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <span class="text-2xl">💙</span>
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-md mx-auto px-4 py-3.5 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">💙</span>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">대명여자고등학교</h1>
-                    <p class="text-xs text-blue-200">스마트 급식 알레르기 알리미</p>
+                    <h1 class="text-base font-bold tracking-tight">대명여고 스마트 급식</h1>
+                    <p class="text-[10px] text-blue-200">대명여자고등학교 알레르기 알리미</p>
                 </div>
             </div>
-            <select id="monthSelect" class="bg-blue-800 text-white border border-blue-700 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 cursor-pointer">
-                <option value="7">2026년 7월 식단표</option>
+            <select id="monthSelect" class="bg-blue-800 text-white border border-blue-700 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none">
+                <option value="7">7월 식단</option>
             </select>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-5 mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <section class="md:col-span-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit sticky top-24">
-            <div class="flex items-center gap-2 mb-2 border-b border-slate-100 pb-3">
-                <span class="text-xl text-blue-600">⚠️</span>
-                <h2 class="font-bold text-lg text-slate-900">나의 알레르기 선택</h2>
-            </div>
-            <p class="text-xs text-slate-400 mb-4 font-medium">조심해야 하는 성분을 체크해 주세요.</p>
-            
-            <div class="grid grid-cols-1 gap-1.5 max-h-[55vh] overflow-y-auto pr-1 text-sm" id="allergyConfig">
-                </div>
-        </section>
+    <main class="max-w-md mx-auto px-4 mt-4">
+        <div class="flex justify-between items-center mb-3">
+            <h2 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
+                <span class="w-1 h-4 bg-blue-600 rounded-full"></span>
+                이번 주 식단 안내
+            </h2>
+            <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-semibold">
+                숫자는 알레르기 번호
+            </span>
+        </div>
 
-        <section class="md:col-span-2 space-y-4">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="font-bold text-xl text-slate-900 flex items-center gap-2">
-                    <span class="w-1.5 h-6 bg-blue-600 rounded-full"></span>
-                    월간 식단 안내
-                </h2>
-                <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-xl font-semibold">
-                    * 메뉴 뒤 숫자는 알레르기 번호입니다
-                </span>
+        <div id="mealContainer" class="space-y-4">
             </div>
-            
-            <div id="mealContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                </div>
-        </section>
-
     </main>
 
+    <div id="bottomSheet" class="bottom-sheet sheet-hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 rounded-t-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.12)] z-50 max-w-md mx-auto">
+        
+        <div id="sheetHeader" class="px-5 py-3 flex flex-col items-center justify-center cursor-pointer border-b border-slate-100">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mb-2"></div>
+            <div class="flex justify-between items-center w-full">
+                <span class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                    ⚠️ 나의 알레르기 설정 <span id="selectedCount" class="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">0</span>
+                </span>
+                <span id="toggleText" class="text-xs text-blue-600 font-bold">터치해서 열기</span>
+            </div>
+        </div>
+
+        <div class="p-5 max-h-[350px] overflow-y-auto">
+            <div class="grid grid-cols-2 gap-2" id="allergyConfig">
+                </div>
+        </div>
+    </div>
+
     <script>
-        // 식약처 기준 알레르기 유발 물질 매핑
+        // 식약처 알레르기 리스트
         const allergyMap = {
             1: "난류", 2: "우유", 3: "메밀", 4: "땅콩", 5: "대두", 
             6: "밀", 7: "고등어", 8: "게", 9: "새우", 10: "돼지고기", 
             11: "복숭아", 12: "토마토", 13: "아황산류", 14: "호두", 
-            15: "닭고기", 16: "쇠고기", 17: "오징어", 18: "조개류", 19: "잣"
+            15: "닭고기", 16: "쇠고기", 17: "오징어", 18: "조개류"
         };
 
-        // [★ 매달 이 부분 데이터만 새로 짜서 바꾸면 끝! ★]
+        // 이미지에 기재된 대명여고 7월 실제 급식 데이터 반영
         const mealData = {
             "7": [
                 {
-                    date: "13일 (월)",
+                    date: "7월 13일 (월)",
                     lunch: ["기장밥", "전주식콩나물국(5.6.13)", "치킨까스(5.6.13.15)", "모둠메추리알조림(1.2.5.6.13)", "미역줄기볶음(5.6.13)", "배추김치(9.13)", "초코빅파이(1.2.6)"],
                     dinner: ["김치제육덮밥(5.6.9.10.13)", "김말이&고로케(1.2.5.6.10.13)", "깍두기(9.13)", "디저트주스"]
                 },
                 {
-                    date: "14일 (화)",
-                    lunch: ["혼합잡곡밥", "맑은순두부탕(1.5.6.13)", "오징어제육볶음(5.6.10.13)", "어묵부추무침(5.6.9.13.17)", "시즈닝감자튀김(1.2.5.6.13)", "배추김치(9.13)"],
-                    dinner: ["찰보리밥", "크림스프(1.2.5.6.10.13)", "함박스테이크&소스(1.2.5.6.10.13.15)", "코울슬로(5.6.13)", "깍두기(9.13)"]
+                    date: "7월 14일 (화)",
+                    lunch: ["혼합잡곡밥", "맑은순두부탕(1.5.6.13)", "오징어제육볶음(5.6.10.13)", "어묵부추무침(5.6.9.13.17)", "시즈닝감자튀김(1.2.5.6.13)", "배추김치(9.13)", "디저트쿠키 혹은 제철과일"],
+                    dinner: ["찰보리밥", "크림스프(1.2.5.6.10.13)", "함박스테이크&소스(1.2.5.6.10.13.15)", "코울슬로(5.6.13)", "알감자버터구이(1.5.6.13)", "깍두기(9.13)"]
                 },
                 {
-                    date: "15일 (수)",
-                    lunch: ["찰밥", "돼지국밥(5.6.10.13)", "한돈숙주볶음(5.6.10.13)", "부추오이무침(5.6.13)", "깍두기(9.13)"],
+                    date: "7월 15일 (수)",
+                    lunch: ["찰밥", "돼지국밥(5.6.10.13)", "한돈숙주볶음(5.6.10.13)", "부추오이무침(5.6.13)", "양파장아찌(5.6.13)", "깍두기(9.13)", "디저트쿠키/조각파인애플"],
                     dinner: ["지코바덮밥(5.6.13.15)", "감자튀김(5.6.13)", "깍두기(9.13)", "요구르트(2)"]
                 },
                 {
-                    date: "16일 (목)",
-                    lunch: ["흑미밥", "맑은소고기무국(5.6.13.16)", "미트볼볶음(5.6.10.13.15)", "분식집떡볶이(5.6.9.13)", "배추김치(9.13)"],
-                    dinner: ["혼합잡곡밥", "고추장찌개(5.6.10.13)", "파닭불고기(5.6.10.13)", "매콤두부조림(5.6.13)", "깍두기(9.13)"]
+                    date: "7월 16일 (목) - 오늘",
+                    lunch: ["흑미밥", "맑은소고기무국(5.6.13.16)", "미트볼볶음(5.6.10.13.15)", "분식집떡볶이(5.6.9.13)", "건새우호박볶음(5.6.9.13)", "배추김치(9.13)", "구운링도넛(1.2)"],
+                    dinner: ["혼합잡곡밥", "고추장찌개(5.6.10.13)", "파닭불고기(5.6.10.13)", "매콤두부조림(5.6.13)", "묵은지도토리묵무침(5.6.9.13)", "깍두기(9.13)"]
                 },
                 {
-                    date: "17일 (금)",
+                    date: "7월 17일 (금)",
                     isHoliday: true,
                     holidayName: "제헌절 🇰🇷"
                 }
@@ -118,113 +130,131 @@
         };
 
         let selectedAllergies = new Set();
+        let isSheetOpen = false;
 
         function init() {
-            renderAllergyOptions();
+            renderAllergies();
             renderMeals("7");
-            
-            document.getElementById('monthSelect').addEventListener('change', (e) => {
-                renderMeals(e.target.value);
+
+            // 하단 슬라이드 토글 이벤트 처리
+            const sheet = document.getElementById('bottomSheet');
+            const header = document.getElementById('sheetHeader');
+            const toggleText = document.getElementById('toggleText');
+
+            header.addEventListener('click', () => {
+                isSheetOpen = !isSheetOpen;
+                if (isSheetOpen) {
+                    sheet.classList.remove('sheet-hidden');
+                    toggleText.innerText = "터치해서 접기";
+                } else {
+                    sheet.classList.add('sheet-hidden');
+                    toggleText.innerText = "터치해서 열기";
+                }
             });
         }
 
-        // 왼쪽 알레르기 리스트 생성 (파란색 포인트 디자인)
-        function renderAllergyOptions() {
+        // 알레르기 항목 모바일 UI 렌더링 (2열 배치)
+        function renderAllergies() {
             const container = document.getElementById('allergyConfig');
             container.innerHTML = '';
-            
+
             Object.keys(allergyMap).forEach(num => {
                 const label = document.createElement('label');
-                label.className = "flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50 cursor-pointer transition-all duration-200 select-none group";
+                label.className = "flex items-center gap-2 p-3 bg-slate-50 border border-slate-100 rounded-xl active:bg-blue-50 transition-all select-none cursor-pointer";
                 label.innerHTML = `
-                    <input type="checkbox" value="${num}" class="w-4 h-4 text-blue-600 border-slate-300 rounded-md focus:ring-blue-500 cursor-pointer transition-transform group-hover:scale-110">
-                    <span class="text-slate-700 font-medium">${num}. ${allergyMap[num]}</span>
+                    <input type="checkbox" value="${num}" class="w-4.5 h-4.5 text-blue-600 border-slate-300 rounded-md focus:ring-blue-500">
+                    <span class="text-xs font-semibold text-slate-700">${num}. ${allergyMap[num]}</span>
                 `;
-                
+
                 label.querySelector('input').addEventListener('change', (e) => {
+                    const parsedNum = parseInt(num);
                     if (e.target.checked) {
-                        selectedAllergies.add(parseInt(num));
+                        selectedAllergies.add(parsedNum);
+                        label.classList.add('bg-blue-50', 'border-blue-200');
                     } else {
-                        selectedAllergies.delete(parseInt(num));
+                        selectedAllergies.delete(parsedNum);
+                        label.classList.remove('bg-blue-50', 'border-blue-200');
                     }
-                    renderMeals(document.getElementById('monthSelect').value);
+                    document.getElementById('selectedCount').innerText = selectedAllergies.size;
+                    renderMeals("7");
                 });
-                
+
                 container.appendChild(label);
             });
         }
 
-        // 괄호 안의 번호 추출기
         function parseAllergies(menuStr) {
             const match = menuStr.match(/\(([^)]+)\)/);
             if (!match) return [];
             return match[1].split('.').map(num => parseInt(num.trim()));
         }
 
-        // 급식 카드 화면에 그리기
+        // 모바일 카드 렌더링 함수
         function renderMeals(month) {
             const container = document.getElementById('mealContainer');
             container.innerHTML = '';
-            
+
             const list = mealData[month] || [];
-            
+
             list.forEach(day => {
                 const card = document.createElement('div');
-                card.className = "meal-card bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between";
-                
+                card.className = "bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm transition-all duration-300";
+
                 if (day.isHoliday) {
                     card.className += " border-blue-200 bg-blue-50/20";
                     card.innerHTML = `
-                        <div>
-                            <div class="font-bold text-blue-900 border-b border-blue-100 pb-2 mb-3">${day.date}</div>
-                            <div class="text-center py-12 text-blue-600 font-bold text-lg">
-                                ${day.holidayName}
-                            </div>
-                        </div>
+                        <div class="font-bold text-sm text-blue-900 border-b border-blue-100 pb-1.5 mb-2">${day.date}</div>
+                        <div class="text-center py-8 text-blue-600 font-bold text-sm">${day.holidayName} (급식 없음)</div>
                     `;
                     container.appendChild(card);
                     return;
                 }
 
-                const createSectionHtml = (title, menuList) => {
-                    if (!menuList || menuList.length === 0) return '';
-                    
+                const createSection = (title, list) => {
+                    if (!list || list.length === 0) return '';
                     let hasDanger = false;
-                    const itemsHtml = menuList.map(item => {
+
+                    const items = list.map(item => {
                         const itemAllergies = parseAllergies(item);
                         const isDangerous = itemAllergies.some(num => selectedAllergies.has(num));
-                        
                         if (isDangerous) hasDanger = true;
-                        
+
                         return `
-                            <li class="py-1 px-2 rounded-lg transition-all duration-300 ${isDangerous ? 'danger-highlight' : 'text-slate-600'}">
-                                ${item}
+                            <li class="py-1 px-2 rounded-lg text-xs transition-all duration-300 ${isDangerous ? 'danger-item-highlight' : 'text-slate-600'}">
+                                ${isDangerous ? '⚠️ ' : ''}${item}
                             </li>
                         `;
                     }).join('');
 
-                    return `
-                        <div class="mt-3 p-3 rounded-xl border ${hasDanger ? 'border-red-200 bg-red-50/30' : 'border-slate-100 bg-slate-50/50'}">
-                            <h4 class="text-xs font-bold ${hasDanger ? 'text-red-500' : 'text-blue-600'} mb-1.5 flex items-center gap-1">
-                                ${title}
-                            </h4>
-                            <ul class="text-sm space-y-1">${itemsHtml}</ul>
-                        </div>
-                    `;
+                    return {
+                        hasDanger,
+                        html: `
+                            <div class="flex-1 p-3 rounded-xl border ${hasDanger ? 'bg-red-50/10 border-red-100' : 'bg-slate-50/50 border-slate-100'}">
+                                <span class="text-[10px] font-bold ${hasDanger ? 'text-red-500' : 'text-blue-600'} uppercase block mb-1.5">${title}</span>
+                                <ul class="space-y-0.5">${items}</ul>
+                            </div>
+                        `
+                    };
                 };
 
-                const lunchHtml = createSectionHtml('☀️ 중식', day.lunch);
-                const dinnerHtml = createSectionHtml('🌙 석식', day.dinner);
+                const lunchRes = createSection('☀️ 중식', day.lunch);
+                const dinnerRes = createSection('🌙 석식', day.dinner);
+
+                if (lunchRes.hasDanger || dinnerRes.hasDanger) {
+                    card.classList.add('danger-card-highlight');
+                }
 
                 card.innerHTML = `
-                    <div>
-                        <div class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-1">
-                            ${day.date}
-                        </div>
-                        <div class="space-y-1">${lunchHtml}${dinnerHtml}</div>
+                    <div class="font-bold text-sm text-slate-800 border-b border-slate-100 pb-1.5 mb-2 flex justify-between items-center">
+                        <span>${day.date}</span>
+                        ${(lunchRes.hasDanger || dinnerRes.hasDanger) ? '<span class="text-[10px] text-red-600 font-bold bg-red-100 px-1.5 py-0.5 rounded-sm">알레르기 위험!</span>' : ''}
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        ${lunchRes.html}
+                        ${dinnerRes.html}
                     </div>
                 `;
-                
+
                 container.appendChild(card);
             });
         }
