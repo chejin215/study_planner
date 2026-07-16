@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>대명여고 스마트 급식 알리미</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
         body { 
             font-family: 'Pretendard', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* 모바일 터치 시 파란 박스 방지 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* 스무스한 모바일 토글 애니메이션 */
@@ -17,7 +18,7 @@
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .sheet-hidden {
-            transform: translateY(calc(100% - 60px)); /* 타이틀만 빼고 아래로 숨김 */
+            transform: translateY(calc(100% - 60px));
         }
 
         /* 알레르기 위험 메뉴 흔들림(Vibration) 모션 */
@@ -37,10 +38,20 @@
             animation: subtleShake 0.4s ease-in-out 2;
             border-left: 3px solid #dc2626;
         }
+        
+        /* 가로 스크롤바 숨기기 (주차 선택 탭용) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-28">
 
+    <!-- 1. 모바일 앱 스타일 탑바 -->
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-40">
         <div class="max-w-md mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -50,29 +61,46 @@
                     <p class="text-[10px] text-blue-200">대명여자고등학교 알레르기 알리미</p>
                 </div>
             </div>
-            <select id="monthSelect" class="bg-blue-800 text-white border border-blue-700 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none">
-                <option value="7">7월 식단</option>
-            </select>
+            <!-- 월 선택 고정 -->
+            <span class="bg-blue-800 text-white border border-blue-700 rounded-lg px-2.5 py-1 text-xs font-semibold">
+                6월 식단
+            </span>
         </div>
     </header>
 
+    <!-- 2. 주간 단위 주차 선택 탭 (가로 스크롤 모바일 UI) -->
+    <nav class="bg-white border-b border-slate-200 sticky top-[60px] z-30">
+        <div class="max-w-md mx-auto px-4 py-2.5 flex gap-2 overflow-x-auto no-scrollbar" id="weekTabContainer">
+            <button onclick="changeWeek(1)" id="tab-w1" class="flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-full transition-all bg-blue-600 text-white shadow-sm">1주 (6.1~6.5)</button>
+            <button onclick="changeWeek(2)" id="tab-w2" class="flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-full transition-all bg-slate-100 text-slate-500 hover:bg-slate-200">2주 (6.8~6.12)</button>
+            <button onclick="changeWeek(3)" id="tab-w3" class="flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-full transition-all bg-slate-100 text-slate-500 hover:bg-slate-200">3주 (6.15~6.19)</button>
+            <button onclick="changeWeek(4)" id="tab-w4" class="flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-full transition-all bg-slate-100 text-slate-500 hover:bg-slate-200">4주 (6.22~6.26)</button>
+            <button onclick="changeWeek(5)" id="tab-w5" class="flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-full transition-all bg-slate-100 text-slate-500 hover:bg-slate-200">5주 (6.29~6.30)</button>
+        </div>
+    </nav>
+
+    <!-- 3. 메인 급식 카드 영역 -->
     <main class="max-w-md mx-auto px-4 mt-4">
         <div class="flex justify-between items-center mb-3">
             <h2 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
                 <span class="w-1 h-4 bg-blue-600 rounded-full"></span>
-                이번 주 식단 안내
+                <span id="currentWeekTitle">1주차 급식 안내</span>
             </h2>
             <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-semibold">
                 숫자는 알레르기 번호
             </span>
         </div>
 
+        <!-- 급식 리스트가 주차에 맞게 동적으로 로드됩니다 -->
         <div id="mealContainer" class="space-y-4">
-            </div>
+            <!-- 자바스크립트 동적 생성 -->
+        </div>
     </main>
 
+    <!-- 4. 모바일용 하단 슬라이드 시트 (알레르기 선택기) -->
     <div id="bottomSheet" class="bottom-sheet sheet-hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 rounded-t-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.12)] z-50 max-w-md mx-auto">
         
+        <!-- 시트 헤더 -->
         <div id="sheetHeader" class="px-5 py-3 flex flex-col items-center justify-center cursor-pointer border-b border-slate-100">
             <div class="w-12 h-1.5 bg-slate-200 rounded-full mb-2"></div>
             <div class="flex justify-between items-center w-full">
@@ -83,14 +111,16 @@
             </div>
         </div>
 
+        <!-- 체크박스 내용 영역 -->
         <div class="p-5 max-h-[350px] overflow-y-auto">
             <div class="grid grid-cols-2 gap-2" id="allergyConfig">
-                </div>
+                <!-- 자바스크립트 동적 생성 -->
+            </div>
         </div>
     </div>
 
     <script>
-        // 식약처 알레르기 리스트
+        // 식약처 알레르기 규격 매핑
         const allergyMap = {
             1: "난류", 2: "우유", 3: "메밀", 4: "땅콩", 5: "대두", 
             6: "밀", 7: "고등어", 8: "게", 9: "새우", 10: "돼지고기", 
@@ -98,45 +128,141 @@
             15: "닭고기", 16: "쇠고기", 17: "오징어", 18: "조개류"
         };
 
-        // 이미지에 기재된 대명여고 7월 실제 급식 데이터 반영
+        // 대명여자고등학교 2026년 6월 식단표 데이터 완벽 이식
         const mealData = {
-            "7": [
-                {
-                    date: "7월 13일 (월)",
-                    lunch: ["기장밥", "전주식콩나물국(5.6.13)", "치킨까스(5.6.13.15)", "모둠메추리알조림(1.2.5.6.13)", "미역줄기볶음(5.6.13)", "배추김치(9.13)", "초코빅파이(1.2.6)"],
-                    dinner: ["김치제육덮밥(5.6.9.10.13)", "김말이&고로케(1.2.5.6.10.13)", "깍두기(9.13)", "디저트주스"]
-                },
-                {
-                    date: "7월 14일 (화)",
-                    lunch: ["혼합잡곡밥", "맑은순두부탕(1.5.6.13)", "오징어제육볶음(5.6.10.13)", "어묵부추무침(5.6.9.13.17)", "시즈닝감자튀김(1.2.5.6.13)", "배추김치(9.13)", "디저트쿠키 혹은 제철과일"],
-                    dinner: ["찰보리밥", "크림스프(1.2.5.6.10.13)", "함박스테이크&소스(1.2.5.6.10.13.15)", "코울슬로(5.6.13)", "알감자버터구이(1.5.6.13)", "깍두기(9.13)"]
-                },
-                {
-                    date: "7월 15일 (수)",
-                    lunch: ["찰밥", "돼지국밥(5.6.10.13)", "한돈숙주볶음(5.6.10.13)", "부추오이무침(5.6.13)", "양파장아찌(5.6.13)", "깍두기(9.13)", "디저트쿠키/조각파인애플"],
-                    dinner: ["지코바덮밥(5.6.13.15)", "감자튀김(5.6.13)", "깍두기(9.13)", "요구르트(2)"]
-                },
-                {
-                    date: "7월 16일 (목) - 오늘",
-                    lunch: ["흑미밥", "맑은소고기무국(5.6.13.16)", "미트볼볶음(5.6.10.13.15)", "분식집떡볶이(5.6.9.13)", "건새우호박볶음(5.6.9.13)", "배추김치(9.13)", "구운링도넛(1.2)"],
-                    dinner: ["혼합잡곡밥", "고추장찌개(5.6.10.13)", "파닭불고기(5.6.10.13)", "매콤두부조림(5.6.13)", "묵은지도토리묵무침(5.6.9.13)", "깍두기(9.13)"]
-                },
-                {
-                    date: "7월 17일 (금)",
-                    isHoliday: true,
-                    holidayName: "제헌절 🇰🇷"
-                }
-            ]
+            "6": {
+                "1": [ // 1주차 (6/1 ~ 6/5)
+                    {
+                        date: "6월 1일 (월)",
+                        lunch: ["찹쌀밥", "뼈없는감자탕(5.6.10.13)", "메란곤약장조림(1.5.6.13)", "무생채무침(5.6.9.13)", "배추김치(9.13)", "복숭아젤리(11)"],
+                        dinner: ["흑미밥", "새알미역국(5.6.13)", "시래기찜닭(5.6.13.15)", "겨자냉채(5.6.9.13)", "야채고로케(1.2.5.6.13)", "깍두기(9.13)"]
+                    },
+                    {
+                        date: "6월 2일 (화)",
+                        lunch: ["찰보리밥", "팽이된장국(5.6.13)", "너비아니볶음(5.6.10.13.15)", "도시락김(5.6.13)", "깍두기(9.13)", "디저트쿠키"],
+                        dinner: ["혼합잡곡밥", "육개장(5.6.13.16)", "서울식국물불고기(5.6.10.13)", "다시마채무침(5.6.9.13)", "김자반(1.5.6.9.13)", "볶음김치(9.13)"]
+                    },
+                    {
+                        date: "6월 3일 (수)",
+                        isHoliday: true,
+                        holidayName: "🗳️ 2026 지방선거 공휴일 (급식 없음)"
+                    },
+                    {
+                        date: "6월 4일 (목)",
+                        lunch: ["혼합잡곡밥", "우동장국(5.6.13)", "간장불고기(5.6.10.13)", "분식집떡볶이(5.6.13)", "찰순대(5.6.10.13)", "단무지무침(5.6.13)", "디저트주스"],
+                        dinner: ["찹쌀밥", "청초콩나물국(5.6.13)", "중화풍고추잡채(5.6.10.13)", "꽃빵(1.2.5.6.13)", "오이무침(5.6.13)", "깍두기(9.13)"]
+                    },
+                    {
+                        date: "6월 5일 (금)",
+                        lunch: ["현미밥", "소고기뭇국(5.6.13.16)", "미트볼야채볶음(5.6.10.13.15)", "감자채당근볶음(5.6.13)", "깻잎지(5.6.13)", "배추김치(9.13)", "아이스망고바"],
+                        dinner: ["수능대비/고사기간", "기말고사 준비기간 - 석식 없음"]
+                    }
+                ],
+                "2": [ // 2주차 (6/8 ~ 6/12)
+                    {
+                        date: "6월 8일 (월)",
+                        lunch: ["혼합잡곡밥", "파송송계란국(1.5.6.13)", "돈민찌마파두부(5.6.10.13)", "소세지야채볶음(5.6.10.13.15)", "오이무침(5.6.13)", "배추김치(9.13)", "몬스터쿠키"],
+                        dinner: ["흑미밥", "곤약어묵국(5.6.9.13)", "돈육찹스테이크(1.2.5.6.10.13)", "치즈스틱(1.2.5.6.13)", "유부숙주나물(5.6.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 9일 (화)",
+                        lunch: ["현미밥", "맑은콩나물국(5.6.13)", "포크토마토스튜(5.6.10.12.13)", "대구식야끼우동(5.6.9.13.18)", "고구마맛탕(5.6.13)", "배추김치(9.13)", "아임리얼스트로베리(13)"],
+                        dinner: ["찰보리밥", "떡만둣국(1.2.5.6.10.13)", "치킨카츠(5.6.10.13)", "옥수수콘마요(1.2.6.13)", "도시락김(5.6.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 10일 (수)",
+                        lunch: ["찹쌀밥", "두부된장국(5.6.13)", "묵은지김치찜(5.6.9.10.13)", "김말이튀김(5.6.13)", "깍두기(9.13)", "계절과일 혹은 쿠키"],
+                        dinner: ["백미밥", "우동장국(5.6.13)", "생선까스&타르타르소스(1.2.5.6.10.13)", "매콤떡볶이(5.6.9.13)", "단호박샐러드(1.2.5.6.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 11일 (목)",
+                        lunch: ["흑미밥", "미역국(5.6.13)", "춘천식닭볶음탕(5.6.13.15)", "푸실리콜드파스타(5.6.12.13)", "호박가지볶음(5.6.13)", "배추김치(9.13)", "아이스홍시"],
+                        dinner: ["찰보리밥", "미역국(5.6.13)", "매콤제육볶음(5.6.10.13)", "버섯장조림(5.6.13)", "감자채볶음(5.6.13)", "깍두기(9.13)"]
+                    },
+                    {
+                        date: "6월 12일 (금)",
+                        lunch: ["찰보리밥", "수제비국(1.5.6.13)", "간장돈갈비찜(5.6.10.13)", "피망버섯볶음(5.6.13)", "콩나물무침(5.6.13)", "깍두기(9.13)", "디저트쿠키", "수박주스(13)"],
+                        dinner: ["카레덮밥(1.2.5.6.10.13)", "갈비맛소세지(5.6.10.13.15)", "감자튀김(5.6.13)", "깍두기(9.13)", "디저트주스"]
+                    }
+                ],
+                "3": [ // 3주차 (6/15 ~ 6/19)
+                    {
+                        date: "6월 15일 (월)",
+                        lunch: ["현미밥", "해물짬뽕탕(5.6.9.13.18)", "짜장불고기(5.6.10.13)", "한식잡채(5.6.9.13)", "짜사이무침(5.6.13)", "배추김치(9.13)", "청사과청귤에이드(13)"],
+                        dinner: ["혼합잡곡밥", "들깨감자국(5.6.13)", "토마토미트볼조림(1.2.5.6.10.12.13.15)", "닭살곤약조림(5.6.13.15)", "깻잎지(5.6.9.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 16일 (화)",
+                        lunch: ["혼합잡곡밥", "들깨무웃국(5.6.13)", "두부두루치기(5.6.13)", "알감자조림(5.6.13)", "해물파전(5.6.9.13.18)", "깍두기(9.13)", "과일 혹은 무궁화마카롱(1.2.5.6)"],
+                        dinner: ["찹쌀밥", "북엇국(1.5.6.9.13)", "닭볶음탕(5.6.13.15)", "양념두부조림(5.6.13)", "배추나물(5.6.13)", "깍두기(9.13)"]
+                    },
+                    {
+                        date: "6월 17일 (수)",
+                        lunch: ["찹쌀밥", "하이라이스소스(1.2.5.6.10.13)", "등심돈까스(5.6.10.13)", "알리오올리오스파게티(5.6.13)", "깍두기(9.13)", "디저트주스", "멜론컵과일"],
+                        dinner: ["백미밥", "부추계란국(1.5.6.13)", "의정부식부대볶음(5.6.13.16)", "교자만두(5.6.10.13)", "양배추코울슬로(1.2.5.6.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 18일 (목)",
+                        lunch: ["흑미밥", "북어뭇국(1.5.6.9.13)", "콩나물불고기(5.6.10.13)", "어묵볶음(5.6.9.13)", "파래김자반(5.6.13)", "깍두기(9.13)", "쥬시쿨곤약젤리(13)"],
+                        dinner: ["흑미밥", "경상도식소고기뭇국(16)", "모듬버섯불고기(5.6.10.13)", "고구마꿀범벅(5.6.13)", "미역줄기나물(5.6.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 19일 (금)",
+                        lunch: ["찰보리밥", "맑은연두부탕(1.5.6.13)", "지코바st닭볶음(5.6.13.15)", "춘권말이(5.6.10.13.15)", "참나물유자무침(5.6.13)", "배추김치(9.13)", "초코수취리떡(1.2.5.6)"],
+                        dinner: ["하이라이스가라아게덮밥(1.2.5.6.10.13.15)", "콜드파스타(1.2.5.6.12.13)", "깍두기(9.13)", "디저트주스"]
+                    }
+                ],
+                "4": [ // 4주차 (6/22 ~ 6/26)
+                    {
+                        date: "6월 22일 (월)",
+                        lunch: ["혼합잡곡밥", "사골떡국(1.5.6.13.16)", "김치제육볶음(5.6.9.10.13)", "한입핫도그&케찹(5.6.10.12.13.15)", "마늘쫑멸치볶음(5.6.9.13)", "깍두기(9.13)", "딸기요거트(1.2)"],
+                        dinner: ["찹쌀밥", "된장찌개(5.6.13)", "야채떡갈비볶음(5.6.10.13.15)", "볼어묵조림(5.6.9.13)", "느타리호박나물(5.6.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 23일 (화)",
+                        lunch: ["현미밥", "호박고추장찌개(5.6.13)", "과일탕수육(5.6.10.13)", "소떡소떡(5.6.10.13.15)", "미역줄기볶음(5.6.13)", "배추김치(9.13)", "샤인머스캣젤리(13)"],
+                        dinner: ["찰보리밥", "맑은연두부탕(5.6.13)", "고추장불고기(5.6.10.13)", "김치전(1.5.6.9.13)", "감자조림(5.6.13)", "깍두기(9.13)"]
+                    },
+                    {
+                        date: "6월 24일 (수)",
+                        lunch: ["찹쌀밥", "양송이스프(2.5.6.13)", "찹스테이크(5.6.10.13)", "뽀모도로파스타(5.6.10.12.13)", "콘소메맛감자튀김(2.5.6.13)", "수제피클(5.6.13)", "모닝빵&딸기잼(1.2)"],
+                        dinner: ["찹쌀밥", "백짬뽕탕(5.6.13.18)", "칠리탕수육(1.2.5.6.10.13)", "봄나물탕평채(1.5.6.13)", "미역줄기나물(5.6.13)", "배추김치(9.13)"]
+                    },
+                    {
+                        date: "6월 25일 (목)",
+                        lunch: ["흑미밥", "조갯살미역국(5.6.13.18)", "생선까스&타르소스(1.2.5.6.9.13)", "콜드펜네샐러드(5.6.13)", "햄야채볶음(5.6.10.13.15)", "깍두기(9.13)", "요거톡(1.2)"],
+                        dinner: ["현미밥", "김치찌개(5.6.9.13)", "한돈간장불고기(1.2.5.6.10.13)", "마늘쫑볶음(5.6.13)", "토마토마리네이드(5.6.12.13)", "깍두기(9.13)"]
+                    },
+                    {
+                        date: "6월 26일 (금)",
+                        lunch: ["찰보리밥", "쑥갓어묵탕(5.6.9.13)", "숙주목살볶음(5.6.10.13)", "야채비빔만두(5.6.10.13)", "깨순간장조림(5.6.13)", "배추김치(9.13)", "요구르트", "초코숲쿠키(2.6)"],
+                        dinner: ["토마토스파게티&미니함박(5.6.10.12.13.15)", "유린기샐러드(5.6.10.13.15)", "수제피클(5.6.13)", "디저트주스"]
+                    }
+                ],
+                "5": [ // 5주차 (6/29 ~ 6/30)
+                    {
+                        date: "6월 29일 (월)",
+                        lunch: ["현미밥", "부대찌개(5.6.10.13.15.16)", "섭산적구이(5.6.10.13.15)", "매콤볼어묵조림(5.6.9.13)", "중화풍가지볶음(5.6.13)", "깍두기(9.13)", "도라에몽암기빵(1.2.6)"],
+                        dinner: ["기말시험 준비기간", "지필평가 일정으로 석식 미운영"]
+                    },
+                    {
+                        date: "6월 30일 (화)",
+                        lunch: ["찹쌀밥", "시래기국(5.6.13)", "연탄불고기(5.6.10.13)", "메란칠리조림(1.2.5.6.10.13)", "오이고추무침(5.6.13)", "깍두기(9.13)"],
+                        dinner: ["지필평가 기간", "기말시험 일정으로 석식 없음 🐻"]
+                    }
+                ]
+            }
         };
 
         let selectedAllergies = new Set();
         let isSheetOpen = false;
+        let currentWeek = 1; // 기본은 1주차
 
         function init() {
             renderAllergies();
-            renderMeals("7");
+            renderMeals("6", currentWeek);
 
-            // 하단 슬라이드 토글 이벤트 처리
+            // 하단 슬라이드 바 토글 핸들링
             const sheet = document.getElementById('bottomSheet');
             const header = document.getElementById('sheetHeader');
             const toggleText = document.getElementById('toggleText');
@@ -152,11 +278,29 @@
                 }
             });
 
-            // 알림 버튼 생성 실행
+            // 알림 시스템 로드
             setupNotificationButton(); 
         }
 
-        // 알레르기 항목 모바일 UI 렌더링 (2열 배치)
+        // 주차 변경 시 활성화 탭 표시 조절 및 식단 재렌더링
+        function changeWeek(weekNum) {
+            currentWeek = weekNum;
+            document.getElementById('currentWeekTitle').innerText = `${weekNum}주차 급식 안내`;
+            
+            // 모든 탭 디자인 초기화
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`tab-w${i}`);
+                if (i === weekNum) {
+                    btn.className = "flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-full transition-all bg-blue-600 text-white shadow-sm";
+                } else {
+                    btn.className = "flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-full transition-all bg-slate-100 text-slate-500 hover:bg-slate-200";
+                }
+            }
+
+            renderMeals("6", weekNum);
+        }
+
+        // 알레르기 항목 모바일 UI 렌더링
         function renderAllergies() {
             const container = document.getElementById('allergyConfig');
             container.innerHTML = '';
@@ -179,9 +323,9 @@
                         label.classList.remove('bg-blue-50', 'border-blue-200');
                     }
                     document.getElementById('selectedCount').innerText = selectedAllergies.size;
-                    renderMeals("7");
+                    renderMeals("6", currentWeek);
                     
-                    // 알레르기를 체크할 때마다 오늘 급식 위험 검사 및 실시간 알림 발송
+                    // 알레르기를 설정할 때마다 주간 급식 내 위험 요소 감지해 실시간 브라우저 푸시 알림 발생
                     checkTodayAllergyAlert(); 
                 });
 
@@ -195,12 +339,12 @@
             return match[1].split('.').map(num => parseInt(num.trim()));
         }
 
-        // 모바일 카드 렌더링 함수
-        function renderMeals(month) {
+        // 특정 주차의 6월 식단 렌더링
+        function renderMeals(month, week) {
             const container = document.getElementById('mealContainer');
             container.innerHTML = '';
 
-            const list = mealData[month] || [];
+            const list = mealData[month][week] || [];
 
             list.forEach(day => {
                 const card = document.createElement('div');
@@ -210,7 +354,7 @@
                     card.className += " border-blue-200 bg-blue-50/20";
                     card.innerHTML = `
                         <div class="font-bold text-sm text-blue-900 border-b border-blue-100 pb-1.5 mb-2">${day.date}</div>
-                        <div class="text-center py-8 text-blue-600 font-bold text-sm">${day.holidayName} (급식 없음)</div>
+                        <div class="text-center py-8 text-blue-600 font-bold text-sm">${day.holidayName}</div>
                     `;
                     container.appendChild(card);
                     return;
@@ -266,7 +410,7 @@
         }
 
         // ==========================================
-        // 🔔 모바일/웹 알레르기 실시간 푸시 알림 기능
+        // 🔔 웹 브라우저 푸시 알림 (Notification API)
         // ==========================================
         function setupNotificationButton() {
             const sidebar = document.getElementById('allergyConfig').parentElement;
@@ -334,36 +478,35 @@
             }
         }
 
+        // 체크박스 활성화 시 해당 주차 내 위험 식단을 감지하여 알려주는 똑똑한 로직
         function checkTodayAllergyAlert() {
             if (selectedAllergies.size === 0 || Notification.permission !== "granted") return;
 
-            const todayData = mealData["7"].find(day => day.date && day.date.includes("오늘"));
-            if (!todayData || todayData.isHoliday) return;
+            // 현재 사용자가 선택해 열어둔 주차의 데이터 중 위험 식단 분석
+            const activeWeekData = mealData["6"][currentWeek] || [];
+            let dangerousCount = 0;
 
-            let dangerousMenus = [];
+            activeWeekData.forEach(day => {
+                if (day.isHoliday) return;
+                
+                const checkMenuAllergy = (menuList) => {
+                    if (!menuList) return;
+                    menuList.forEach(item => {
+                        const nums = parseAllergies(item);
+                        if (nums.some(n => selectedAllergies.has(n))) {
+                            dangerousCount++;
+                        }
+                    });
+                };
 
-            if (todayData.lunch) {
-                todayData.lunch.forEach(item => {
-                    const nums = parseAllergies(item);
-                    if (nums.some(n => selectedAllergies.has(n))) {
-                        dangerousMenus.push(`[중식] ${item.split('(')[0]}`);
-                    }
-                });
-            }
+                checkMenuAllergy(day.lunch);
+                checkMenuAllergy(day.dinner);
+            });
 
-            if (todayData.dinner) {
-                todayData.dinner.forEach(item => {
-                    const nums = parseAllergies(item);
-                    if (nums.some(n => selectedAllergies.has(n))) {
-                        dangerousMenus.push(`[석식] ${item.split('(')[0]}`);
-                    }
-                });
-            }
-
-            if (dangerousMenus.length > 0) {
+            if (dangerousCount > 0) {
                 sendPushNotification(
-                    "⚠️ 대명여고 급식 알레르기 경고!", 
-                    `오늘 식단에 위험 메뉴가 포함되어 있습니다: ${dangerousMenus.join(', ')}`
+                    "⚠️ 알레르기 유발 주의!", 
+                    `이번 주 식단 내에 설정하신 알레르기 유발 물질이 포함된 음식이 ${dangerousCount}개 발견되었습니다.`
                 );
             }
         }
@@ -372,4 +515,5 @@
     </script>
 </body>
 </html>
+
 
