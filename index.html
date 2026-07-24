@@ -1,110 +1,83 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>대명여고 스마트 급식 알리미</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
-        
-        /* 1. 손가락 스크롤 및 모바일 터치 최적화 */
-        html, body { 
-            font-family: 'Pretendard', sans-serif;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            touch-action: manipulation;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>대명여고 스마트 급식 알리미</title>
 
-        /* details 화살표 기본 스타일 제거 */
-        details summary::-webkit-details-marker {
-            display: none;
-        }
-    </style>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap");
+
+    body {
+      font-family: "Pretendard", sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 p-4 md:p-8">
 
-    <!-- 3. 패드 가로모드 대응: max-w 확장 및 반응형 수치 적용 -->
-    <div class="max-w-5xl mx-auto space-y-6">
-        
-        <!-- 헤더 -->
-        <header class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60 flex justify-between items-center">
-            <div>
-                <span class="text-xs font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-md">대명여고</span>
-                <h1 class="text-xl md:text-2xl font-extrabold text-slate-900 mt-1">스마트 급식 알리미 🍱</h1>
-            </div>
-            <p class="text-sm font-medium text-slate-500">2026.07.24 (금)</p>
-        </header>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+  <main class="mx-auto max-w-md p-5">
+    <header class="mb-6 rounded-3xl bg-white p-6 shadow-sm">
+      <p class="mb-1 text-sm font-semibold text-blue-600">대명여자고등학교</p>
+      <h1 class="text-2xl font-extrabold">스마트 급식 알리미</h1>
+      <p class="mt-2 text-sm text-slate-500">
+        오늘의 급식 정보를 간편하게 확인하세요.
+      </p>
+    </header>
 
-        <!-- 3. 패드 가로모드 대응: md:grid-cols-2 로 가로일 때 2열 자동 배치 -->
-        <main class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- 중식 카드 (2. details/summary로 빈 공간 터치해도 접히도록 설정) -->
-            <details class="group bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 transition-all duration-200" open>
-                <!-- summary 전체가 터치 영역이라 글자 외의 빈 공간을 눌러도 접힘 -->
-                <summary class="flex justify-between items-center cursor-pointer select-none list-none w-full">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xl">☀️</span>
-                        <h2 class="text-lg font-bold text-slate-800">중식</h2>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full">720 kcal</span>
-                        <!-- 접힘/펼침 아이콘 (기본 CSS 애니메이션) -->
-                        <span class="text-slate-400 font-bold transition-transform duration-200 group-open:rotate-180">▼</span>
-                    </div>
-                </summary>
+    <section class="rounded-3xl bg-white p-6 shadow-sm">
+      <div class="mb-5 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-500">오늘의 급식</p>
+          <h2 id="today" class="mt-1 text-lg font-bold"></h2>
+        </div>
 
-                <!-- 접히고 펼쳐지는 급식 내용 -->
-                <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
-                    <ul class="space-y-2 text-slate-700 font-medium">
-                        <li class="flex justify-between"><span>친환경 쌀밥</span></li>
-                        <li class="flex justify-between"><span>얼갈이된장국</span></li>
-                        <li class="flex justify-between"><span>제육볶음</span> <span class="text-xs text-slate-400">⑩</span></li>
-                        <li class="flex justify-between"><span>계란말이</span></li>
-                        <li class="flex justify-between"><span>배추김치</span></li>
-                        <li class="flex justify-between text-rose-500 font-semibold"><span>음료 (수박에이드)</span></li>
-                    </ul>
+        <span class="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
+          중식
+        </span>
+      </div>
 
-                    <div class="mt-4 p-3 bg-slate-50 rounded-xl text-xs text-slate-500 space-y-1">
-                        <p><strong>알레르기:</strong> ①난류, ⑤대두, ⑥밀, ⑩돼지고기</p>
-                        <p><strong>원산지:</strong> 돼지고기(국내산), 쌀(국내산)</p>
-                    </div>
-                </div>
-            </details>
+      <ul class="space-y-3">
+        <li class="rounded-2xl bg-slate-50 px-4 py-3">쌀밥</li>
+        <li class="rounded-2xl bg-slate-50 px-4 py-3">미역국</li>
+        <li class="rounded-2xl bg-slate-50 px-4 py-3">닭갈비</li>
+        <li class="rounded-2xl bg-slate-50 px-4 py-3">배추김치</li>
+        <li class="rounded-2xl bg-slate-50 px-4 py-3">과일</li>
+      </ul>
 
-            <!-- 석식 카드 -->
-            <details class="group bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 transition-all duration-200" open>
-                <!-- summary 전체가 터치 영역 -->
-                <summary class="flex justify-between items-center cursor-pointer select-none list-none w-full">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xl">🌙</span>
-                        <h2 class="text-lg font-bold text-slate-800">석식</h2>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full">680 kcal</span>
-                        <span class="text-slate-400 font-bold transition-transform duration-200 group-open:rotate-180">▼</span>
-                    </div>
-                </summary>
+      <div class="mt-5 rounded-2xl bg-amber-50 p-4">
+        <p class="text-sm font-semibold text-amber-800">알레르기 정보</p>
+        <p class="mt-1 text-sm text-amber-700">
+          식단에 포함된 알레르기 유발 식품을 확인하세요.
+        </p>
+      </div>
+    </section>
 
-                <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
-                    <ul class="space-y-2 text-slate-700 font-medium">
-                        <li class="flex justify-between"><span>치킨마요덮밥</span> <span class="text-xs text-slate-400">①,⑤,⑥</span></li>
-                        <li class="flex justify-between"><span>팽이장국</span></li>
-                        <li class="flex justify-between"><span>떡꼬치</span></li>
-                        <li class="flex justify-between"><span>단무지무침</span></li>
-                        <li class="flex justify-between"><span>깍두기</span></li>
-                    </ul>
+    <nav class="mt-6 grid grid-cols-3 gap-3">
+      <button class="rounded-2xl bg-blue-600 py-3 font-bold text-white">
+        오늘
+      </button>
 
-                    <div class="mt-4 p-3 bg-slate-50 rounded-xl text-xs text-slate-500 space-y-1">
-                        <p><strong>알레르기:</strong> ①난류, ⑤대두, ⑥밀, ⑮닭고기</p>
-                        <p><strong>원산지:</strong> 닭고기(국내산), 쌀(국내산)</p>
-                    </div>
-                </div>
-            </details>
+      <button class="rounded-2xl bg-white py-3 font-bold shadow-sm">
+        주간 식단
+      </button>
 
-        </main>
-    </div>
+      <button class="rounded-2xl bg-white py-3 font-bold shadow-sm">
+        설정
+      </button>
+    </nav>
+  </main>
 
+  <script>
+    const today = new Date();
+
+    document.getElementById("today").textContent =
+      today.toLocaleDateString("ko-KR", {
+        month: "long",
+        day: "numeric",
+        weekday: "long"
+      });
+  </script>
 </body>
 </html>
