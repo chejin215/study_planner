@@ -4,195 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>대명여고 스마트 급식 알리미</title>
-    <!-- Tailwind CSS v4 -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        body { 
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+        
+        /* 1. 손가락 스크롤 및 모바일 터치 최적화 */
+        html, body { 
             font-family: 'Pretendard', sans-serif;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             touch-action: manipulation;
         }
-        /* 드래그 애니메이션용 transition */
-        .sheet-transition {
-            transition: transform 0.3s ease-out;
+
+        /* details 화살표 기본 스타일 제거 */
+        details summary::-webkit-details-marker {
+            display: none;
         }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 antialiased selection:bg-rose-100 selection:text-rose-600">
+<body class="bg-slate-100 min-h-screen text-slate-800 p-4 md:p-8">
 
-    <!-- 메인 컨테이너 (패드 가로모드 및 모바일 겸용 레이아웃) -->
-    <div class="max-w-6xl mx-auto p-4 md:p-8">
+    <!-- 3. 패드 가로모드 대응: max-w 확장 및 반응형 수치 적용 -->
+    <div class="max-w-5xl mx-auto space-y-6">
         
         <!-- 헤더 -->
-        <header class="flex items-center justify-between mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60">
+        <header class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60 flex justify-between items-center">
             <div>
-                <span class="inline-block px-2.5 py-1 bg-rose-50 text-rose-600 text-xs font-bold rounded-md mb-1">대명여고</span>
-                <h1 class="text-xl md:text-2xl font-bold text-slate-900">오늘의 급식 알리미 🍱</h1>
+                <span class="text-xs font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-md">대명여고</span>
+                <h1 class="text-xl md:text-2xl font-extrabold text-slate-900 mt-1">스마트 급식 알리미 🍱</h1>
             </div>
-            <div class="text-right text-xs md:text-sm text-slate-500 font-medium">
-                <p id="current-date">2026.07.24 (금)</p>
-            </div>
+            <p class="text-sm font-medium text-slate-500">2026.07.24 (금)</p>
         </header>
 
-        <!-- 패드 가로모드 대응 Grid (가로모드: 2열 / 모바일: 1열) -->
+        <!-- 3. 패드 가로모드 대응: md:grid-cols-2 로 가로일 때 2열 자동 배치 -->
         <main class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            <!-- 중식 카드 -->
-            <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <span>☀️</span> 중식
-                        </h2>
-                        <span class="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full">720 kcal</span>
+            <!-- 중식 카드 (2. details/summary로 빈 공간 터치해도 접히도록 설정) -->
+            <details class="group bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 transition-all duration-200" open>
+                <!-- summary 전체가 터치 영역이라 글자 외의 빈 공간을 눌러도 접힘 -->
+                <summary class="flex justify-between items-center cursor-pointer select-none list-none w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">☀️</span>
+                        <h2 class="text-lg font-bold text-slate-800">중식</h2>
                     </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full">720 kcal</span>
+                        <!-- 접힘/펼침 아이콘 (기본 CSS 애니메이션) -->
+                        <span class="text-slate-400 font-bold transition-transform duration-200 group-open:rotate-180">▼</span>
+                    </div>
+                </summary>
+
+                <!-- 접히고 펼쳐지는 급식 내용 -->
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
                     <ul class="space-y-2 text-slate-700 font-medium">
-                        <li class="flex justify-between items-center"><span>친환경 쌀밥</span></li>
-                        <li class="flex justify-between items-center"><span>얼갈이된장국</span></li>
-                        <li class="flex justify-between items-center"><span>제육볶음</span> <span class="text-xs text-slate-400">⑩</span></li>
-                        <li class="flex justify-between items-center"><span>계말이말이</span></li>
-                        <li class="flex justify-between items-center"><span>배추김치</span></li>
-                        <li class="flex justify-between items-center"><span class="text-rose-500 font-semibold">음료 (수박에이드)</span></li>
+                        <li class="flex justify-between"><span>친환경 쌀밥</span></li>
+                        <li class="flex justify-between"><span>얼갈이된장국</span></li>
+                        <li class="flex justify-between"><span>제육볶음</span> <span class="text-xs text-slate-400">⑩</span></li>
+                        <li class="flex justify-between"><span>계란말이</span></li>
+                        <li class="flex justify-between"><span>배추김치</span></li>
+                        <li class="flex justify-between text-rose-500 font-semibold"><span>음료 (수박에이드)</span></li>
                     </ul>
+
+                    <div class="mt-4 p-3 bg-slate-50 rounded-xl text-xs text-slate-500 space-y-1">
+                        <p><strong>알레르기:</strong> ①난류, ⑤대두, ⑥밀, ⑩돼지고기</p>
+                        <p><strong>원산지:</strong> 돼지고기(국내산), 쌀(국내산)</p>
+                    </div>
                 </div>
-                <button onclick="openSheet('lunch')" class="mt-6 w-full py-3 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-600 text-sm font-semibold rounded-xl transition cursor-pointer">
-                    상세 영양/알레르기 보기
-                </button>
-            </section>
+            </details>
 
             <!-- 석식 카드 -->
-            <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <span>🌙</span> 석식
-                        </h2>
-                        <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full">680 kcal</span>
+            <details class="group bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 transition-all duration-200" open>
+                <!-- summary 전체가 터치 영역 -->
+                <summary class="flex justify-between items-center cursor-pointer select-none list-none w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🌙</span>
+                        <h2 class="text-lg font-bold text-slate-800">석식</h2>
                     </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full">680 kcal</span>
+                        <span class="text-slate-400 font-bold transition-transform duration-200 group-open:rotate-180">▼</span>
+                    </div>
+                </summary>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
                     <ul class="space-y-2 text-slate-700 font-medium">
-                        <li class="flex justify-between items-center"><span>치킨마요덮밥</span> <span class="text-xs text-slate-400">①,⑤,⑥</span></li>
-                        <li class="flex justify-between items-center"><span>팽이장국</span></li>
-                        <li class="flex justify-between items-center"><span>떡꼬치</span></li>
-                        <li class="flex justify-between items-center"><span>단무지무침</span></li>
-                        <li class="flex justify-between items-center"><span>깍두기</span></li>
+                        <li class="flex justify-between"><span>치킨마요덮밥</span> <span class="text-xs text-slate-400">①,⑤,⑥</span></li>
+                        <li class="flex justify-between"><span>팽이장국</span></li>
+                        <li class="flex justify-between"><span>떡꼬치</span></li>
+                        <li class="flex justify-between"><span>단무지무침</span></li>
+                        <li class="flex justify-between"><span>깍두기</span></li>
                     </ul>
+
+                    <div class="mt-4 p-3 bg-slate-50 rounded-xl text-xs text-slate-500 space-y-1">
+                        <p><strong>알레르기:</strong> ①난류, ⑤대두, ⑥밀, ⑮닭고기</p>
+                        <p><strong>원산지:</strong> 닭고기(국내산), 쌀(국내산)</p>
+                    </div>
                 </div>
-                <button onclick="openSheet('dinner')" class="mt-6 w-full py-3 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-600 text-sm font-semibold rounded-xl transition cursor-pointer">
-                    상세 영양/알레르기 보기
-                </button>
-            </section>
+            </details>
 
         </main>
     </div>
 
-    <!-- 바텀시트 (손으로 제스처 내리기 + 빈공간 터치 지원) -->
-    <div id="overlay" onclick="closeSheet()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300 z-40"></div>
-
-    <div id="bottom-sheet" class="fixed inset-x-0 bottom-0 max-w-2xl mx-auto bg-white rounded-t-3xl shadow-2xl z-50 transform translate-y-full sheet-transition flex flex-col max-h-[85vh]">
-        
-        <!-- [핵심] 상단 핸들바 영역: 이 빈 공간 전체를 터치/드래그 가능 -->
-        <div id="sheet-header" class="w-full py-4 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing select-none border-b border-slate-100">
-            <!-- 시각적 터치 바 -->
-            <div class="w-12 h-1.5 bg-slate-300 rounded-full mb-1"></div>
-            <p class="text-[11px] text-slate-400 font-medium">아래로 쓸어내리거나 터치하여 닫기</p>
-        </div>
-
-        <!-- 내용 영역 -->
-        <div class="p-6 overflow-y-auto space-y-4">
-            <h3 id="sheet-title" class="text-xl font-bold text-slate-900">상세 정보</h3>
-            <div id="sheet-content" class="text-sm text-slate-600 leading-relaxed space-y-2">
-                <!-- 자바스크립트로 내역 삽입 -->
-            </div>
-            <button onclick="closeSheet()" class="w-full py-3.5 bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white font-bold rounded-xl transition mt-4 cursor-pointer">
-                닫기
-            </button>
-        </div>
-    </div>
-
-    <script>
-        const sheet = document.getElementById('bottom-sheet');
-        const overlay = document.getElementById('overlay');
-        const sheetHeader = document.getElementById('sheet-header');
-
-        // 바텀시트 열기
-        function openSheet(type) {
-            const title = document.getElementById('sheet-title');
-            const content = document.getElementById('sheet-content');
-
-            if(type === 'lunch') {
-                title.innerText = '☀️ 중식 상세 정보';
-                content.innerHTML = `
-                    <p class="font-semibold text-slate-800">알레르기 정보</p>
-                    <p class="bg-slate-50 p-3 rounded-lg border border-slate-100">①난류, ⑤대두, ⑥밀, ⑩돼지고기, ⑬땅콩</p>
-                    <p class="font-semibold text-slate-800 mt-3">원산지 정보</p>
-                    <p class="bg-slate-50 p-3 rounded-lg border border-slate-100">돼지고기(국내산), 쌀(국내산), 배추김치(국내산)</p>
-                `;
-            } else {
-                title.innerText = '🌙 석식 상세 정보';
-                content.innerHTML = `
-                    <p class="font-semibold text-slate-800">알레르기 정보</p>
-                    <p class="bg-slate-50 p-3 rounded-lg border border-slate-100">①난류, ⑤대두, ⑥밀, ⑮닭고기</p>
-                    <p class="font-semibold text-slate-800 mt-3">원산지 정보</p>
-                    <p class="bg-slate-50 p-3 rounded-lg border border-slate-100">닭고기(국내산), 쌀(국내산)</p>
-                `;
-            }
-
-            overlay.classList.remove('opacity-0', 'pointer-events-none');
-            sheet.classList.remove('translate-y-full');
-            sheet.style.transform = 'translateY(0)';
-        }
-
-        // 바텀시트 닫기
-        function closeSheet() {
-            overlay.classList.add('opacity-0', 'pointer-events-none');
-            sheet.style.transform = 'translateY(100%)';
-        }
-
-        // --- 터치 / 드래그로 직접 내리기 기능 구현 ---
-        let startY = 0;
-        let currentY = 0;
-        let isDragging = false;
-
-        // Header 터치 시 바로 닫히는 기능 (빈 공간 클릭)
-        sheetHeader.addEventListener('click', () => {
-            closeSheet();
-        });
-
-        // 드래그 제스처 이벤트
-        sheet.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-            isDragging = true;
-            sheet.classList.remove('sheet-transition'); // 드래그 시 실시간 반응을 위해 transition 제거
-        });
-
-        sheet.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            currentY = e.touches[0].clientY;
-            const diffY = currentY - startY;
-
-            // 아래로 끌어내릴 때만 이동
-            if (diffY > 0) {
-                sheet.style.transform = `translateY(${diffY}px)`;
-            }
-        });
-
-        sheet.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            sheet.classList.add('sheet-transition'); // transition 복원
-
-            const diffY = currentY - startY;
-            // 100px 이상 내려치면 닫기, 아니면 원위치
-            if (diffY > 100) {
-                closeSheet();
-            } else {
-                sheet.style.transform = 'translateY(0)';
-            }
-            startY = 0;
-            currentY = 0;
-        });
-    </script>
 </body>
 </html>
-
-
