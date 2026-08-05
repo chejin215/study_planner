@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>대명여고 스마트 급식 알리미</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+        
+        /* 터치 스크롤 최적화 */
+        html, body { 
+            font-family: 'Pretendard', sans-serif;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: manipulation;
+        }
+
+        /* details 화살표 기본 스타일 제거 */
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- 헤더 및 날짜 선택기 -->
+        <header class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-xs font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-md">대명여고</span>
+                <h1 class="text-xl md:text-2xl font-extrabold text-slate-900 mt-1">8월 전체 스마트 급식 알리미 🍱</h1>
+            </div>
+            
+            <!-- 날짜 컨트롤러 -->
+            <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                <button onclick="changeDate(-1)" class="px-3 py-1.5 bg-white shadow-xs rounded-lg text-sm font-bold active:bg-slate-100 cursor-pointer">◀</button>
+                <select id="date-select" onchange="onDateChange()" class="bg-transparent font-bold text-slate-700 text-sm md:text-base outline-none cursor-pointer py-1">
+                    <!-- JS로 8월 전체 날짜 자동 생성 -->
+                </select>
+                <button onclick="changeDate(1)" class="px-3 py-1.5 bg-white shadow-xs rounded-lg text-sm font-bold active:bg-slate-100 cursor-pointer">▶</button>
+            </div>
+        </header>
+
+        <!-- 메인 급식 카드 (패드 가로모드 대응: md:grid-cols-2) -->
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- 중식 카드 (빈 공간 클릭해도 접힘) -->
+            <details id="lunch-card" class="group bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 transition-all duration-200" open>
+                <summary class="flex justify-between items-center cursor-pointer select-none list-none w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">☀️</span>
+                        <h2 class="text-lg font-bold text-slate-800">중식</h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="lunch-kcal" class="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full">- kcal</span>
+                        <span class="text-slate-400 font-bold transition-transform duration-200 group-open:rotate-180">▼</span>
+                    </div>
+                </summary>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                    <ul id="lunch-menu" class="space-y-2 text-slate-700 font-medium">
+                        <!-- 중식 메뉴 삽입 -->
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 석식 카드 (빈 공간 클릭해도 접힘) -->
+            <details id="dinner-card" class="group bg-white rounded-3xl p-6 shadow-sm border border-slate-200/60 transition-all duration-200" open>
+                <summary class="flex justify-between items-center cursor-pointer select-none list-none w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🌙</span>
+                        <h2 class="text-lg font-bold text-slate-800">석식</h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="dinner-kcal" class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full">- kcal</span>
+                        <span class="text-slate-400 font-bold transition-transform duration-200 group-open:rotate-180">▼</span>
+                    </div>
+                </summary>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                    <ul id="dinner-menu" class="space-y-2 text-slate-700 font-medium">
+                        <!-- 석식 메뉴 삽입 -->
+                    </ul>
+                </div>
+            </details>
+
+        </main>
+        
+        <!-- 알레르기 안내 범례 -->
+        <footer class="bg-white p-4 rounded-2xl border border-slate-200/60 text-xs text-slate-400 leading-relaxed">
+            <p class="font-bold text-slate-500 mb-1">알레르기 유발식품 안내</p>
+            <p>①난류 ②우유 ③메밀 ④땅콩 ⑤대두 ⑥밀 ⑦고등어 ⑧게 ⑨새우 ⑩돼지고기 ⑪복숭아 ⑫토마토 ⑬아황산염 ⑭호두 ⑮닭고기 ⑯소고기 ⑰오징어 ⑱조개류(굴,전복,홍합) ⑲잣</p>
+        </footer>
+    </div>
+
+    <!-- 2026년 8월 전일자 완벽 식단 데이터 -->
+    <script>
+        const mealData = {
+            "2026-08-03": {
+                day: "월 (개학식)",
+                lunch: ["찹쌀밥", "도토리묵사발(5.6.9.16)", "불향쭈꾸미불고기(5.6.10.12.13.18)", "갈릭고르곤졸라피자(6.12.13)", "콩나물무침(5)", "열무김치(9)", "개학케이크(1.2.5.6)"],
+                lunchKcal: "808 kcal",
+                dinner: ["참치밥버거(1.2.5.6.9.10.13.15.16.18)", "우동장국(1.2.5.6.7.8.9.18)", "로제구슬떡볶이(1.2.5.6.10.15.16)", "야채튀김&간장(1.5.6.8.9.13.17.18)", "깍두기(9)", "제주청귤주스(13)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-04": {
+                day: "화 (다채움DAY)",
+                lunch: ["백미밥", "소고기샤브샤브국(5.6.8.9.16.18)", "언양바싹불고기(1.2.5.6.10.12.15.16)", "해물볶음면(5.6.8.9.13.17.18)", "수제양파장아찌(5.6.13)", "배추김치(9)", "골드키위"],
+                lunchKcal: "767 kcal",
+                dinner: ["현미밥", "돈육김치찌개(5.8.9.10.13.16.18)", "분모자간장찜닭(5.6.13.15.18)", "납작만두&야채무침(1.5.6.13)", "백김치(6)", "쿠앤크아몬드"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-05": {
+                day: "수",
+                lunch: ["해물빠에야볶음밥(1.2.5.6.8.9.12.13.17.18)", "미소된장국(5.6.8.9.18)", "치즈함박스테이크(1.2.5.6.10.12.13.15.16)", "시금치프리타타(1.2.5.10.12)", "지중해식샐러드(1.2.5.6.12)", "배추김치(9)", "레몬에이드"],
+                lunchKcal: "747 kcal",
+                dinner: ["차조밥", "닭곰탕&당면사리(8.9.15.18)", "곰돌이떡갈비(5.6.10.12.13.15.16.18)", "오지치즈후라이(2.5.6.10)", "총각김치(9)", "골드키위푸딩"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-06": {
+                day: "목",
+                lunch: ["백미밥", "소고기떡국(1.8.9.16.18)", "고추장오리불고기", "베이컨감자채볶음(5.10)", "유자치커리샐러드(1.2.5.6.13)", "배추김치(9)", "수박에이드(13)"],
+                lunchKcal: "808 kcal",
+                dinner: ["백미밥", "소고기당면국(5.6.8.9.16.18)", "순후추치킨스테이크(1.2.5.6.10.12.13.15.16)", "불어묵볶음(1.5.6.13.18)", "배추김치(9)", "메론슈(1.2.5.6)"],
+                dinnerKcal: "767 kcal"
+            },
+            "2026-08-07": {
+                day: "금 (잔반없는 날)",
+                lunch: ["달걀볶음밥(1.2.5.6.10.13.15.16.18)", "해물짬뽕국(5.6.8.9.13.16.17.18)", "찹쌀꿔바로우(1.5.6.10.12.13.18)", "고추잡채&꽃빵(5.6.10)", "하트단무지", "배추김치(9)", "식혜"],
+                lunchKcal: "798 kcal",
+                dinner: ["수수밥", "삼색물만둣국(1.5.6.8.9.10.16.18)", "큐브찹스테이크(5.6.10.12.13.16)", "냉파스타샐러드(1.2.5.6.12.13)", "배추김치(9)", "딸기크림치즈떡"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-10": {
+                day: "월",
+                lunch: ["백미밥", "사골우거지국(5.16)", "마라샹궈(1.2.5.6.9.10.13.15.16.17.18)", "중식 동모짜치즈카츠(1.2.5.6)", "포두부오이냉채(13)", "열무김치(9)", "얼려먹는 요구르트(2)"],
+                lunchKcal: "761 kcal",
+                dinner: ["기장밥", "스팸김치짜글이(1.2.5.6.9.10.13.15.16)", "연탄간장불고기(5.6.10.12.13)", "참치마요&불닭김(1.5.16.18)", "백김치(6)", "과채주스(13)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-11": {
+                day: "화",
+                lunch: ["현미밥", "김치수제비국(1.5.6.8.9.18)", "가자미크런치까스&어니언소스(1.5.6.13)", "모듬장조림(1.5.6.10.13.18)", "요거트과일샐러드(1.2.5.6)", "비름나물무침", "총각김치(9)"],
+                lunchKcal: "734 kcal",
+                dinner: ["치킨마요덮밥(1.2.5.6.13.15.18)", "두부된장국(5.6.8.9.18)", "스텔라별떡볶이", "그린샐러드&키위드레싱(1.2.5.6.12)", "깍두기(9)", "망고워터젤리"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-12": {
+                day: "수 (생일축하의 날)",
+                lunch: ["밤팥밥", "소고기미역국(5.6.8.9.16.18)", "돼지갈비찜(5.6.10.13.18)", "오색잡채(1.5.6.10.13.18)", "삼색나물&고추장(5.6)", "배추김치(9)", "생일베리파이(1.2.5.6)"],
+                lunchKcal: "747 kcal",
+                dinner: ["차슈돈코츠라멘(1.2.5.6.10.13.15.16)", "무장아찌밥(1.2.5.6.9.13.16.18)", "허니버터지파이(1.5.6.15.18)", "니츠샐러드(1.2.5.6.13.16)", "백김치(6)", "복숭아푸딩(11)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-13": {
+                day: "목",
+                lunch: ["혼합잡곡밥(5)", "감자옹심이국(1.5.6.8.9.17.18)", "훈제오리볶음&머스타드(1.2.5.6.12.13)", "불고기치즈감자(2.5.6.10.12.13.15.16.18)", "찹쌀콩멸치볶음(5.13)", "총각김치(9)", "자두"],
+                lunchKcal: "747 kcal",
+                dinner: ["수수밥", "순살감자탕(5.6.10.13.16)", "미트볼라따뚜이(1.2.5.6.10.12.13.15.16)", "고구마그라탕(1.2.5.6)", "배추김치(9)", "바나나우유(2)"],
+                dinnerKcal: "798 kcal"
+            },
+            "2026-08-14": {
+                day: "금 (잔반없는 날)",
+                lunch: ["열무냉국수(1.5.6.9.13.16)", "김가루밥", "자메이카치킨(1.2.5.6.12.15)", "오이콘샐러드(1.5.13)", "배추김치(9)", "수박과일화채(11)"],
+                lunchKcal: "722 kcal",
+                dinner: ["기장밥", "부대찌개&라면사리(1.2.5.6.8.9.10.13.15.16.18)", "오징어까스&양파드레싱(1.5.6.13.17)", "찰떡가마보꼬어묵조림(1.5.6.13)", "백김치(6)", "초코우유(2)"],
+                dinnerKcal: "698 kcal"
+            },
+            "2026-08-17": {
+                day: "월 (광복절 대체휴일)",
+                lunch: ["휴업일 (급식 없음)"],
+                lunchKcal: "-",
+                dinner: ["휴업일 (급식 없음)"],
+                dinnerKcal: "-"
+            },
+            "2026-08-18": {
+                day: "화",
+                lunch: ["나물비빔밥&계란프라이(1.5.6.13)", "우렁강된장찌개(5.6.8.9.18)", "가지라자냐(2.5.6.12.13)", "단호박고로케&케첩(1.5.6.12)", "도시락김", "열무김치(9)", "블루베리요거트"],
+                lunchKcal: "761 kcal",
+                dinner: ["땡초고기볶음밥(2.5.6.10.13.18)", "우동장국(1.2.5.6.7.8.9.18)", "오경돈파이(5.6.10.12.13.16.18)", "청포도구슬치즈샐러드(1.2.5.6)", "깍두기(9)", "초코크로칸슈(1.2.5.6)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-19": {
+                day: "수",
+                lunch: ["흑미잡곡밥(5)", "모듬어묵국(1.5.6.8.9.18)", "보쌈&마늘소스(5.6.10.12.13.18)", "해물파전(5.6.9.13.17)", "꼬시래기무침(5.6.13)", "배추김치(9)", "씨없는 포도"],
+                lunchKcal: "747 kcal",
+                dinner: ["나시고랭볶음밥(1.2.5.6.9.12.13.15)", "미니쌀국수(5.6.8.9.15.16.18)", "고구마&스프링(1.5.6.10.12.13.16.18)", "열대과일샐러드(1.2.5.6.11.13)", "배추김치(9)", "매실에이드"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-20": {
+                day: "목",
+                lunch: ["북어콩나물국(1.5.6.8.9.18)", "묵은지사태찜(9.10.13)", "하트미니돈까스(1.5.6.10.12.13.18)", "흑임자연근샐러드(1.5)", "배추김치(9)", "블루베리미니도넛(1.2.5.6)"],
+                lunchKcal: "769 kcal",
+                dinner: ["렌틸콩밥", "짬뽕수제비국(5.6.8.9.17.18)", "크런치탕수육&소스(1.5.6.10.11.12.13.18)", "토마토계란볶음(1.5.12)", "백김치(6)", "사과요거트(13)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-21": {
+                day: "금 (블러 DAY)",
+                lunch: ["참치야채비빔밥(5.6.13.16.18)", "콘소메이징치킨(1.2.5.6.15)", "단호박고구마샐러드(1.2.5.13)", "토마토카프레제(2.12.13)", "열무김치(9)", "자몽허니블랙티(텀블러지참)(13)"],
+                lunchKcal: "747 kcal",
+                dinner: ["투움바파스타(1.2.5.6.9.10.12.13)", "김가루밥", "비프토마토스튜(2.5.6.12.13.16)", "회오리빵글핫도그(1.2.5.6.10.16)", "모듬피클", "갈릭크로와상(2.5.6)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-24": {
+                day: "월",
+                lunch: ["혼합잡곡밥(5)", "소고기육개장(1.5.6.8.9.16.18)", "대패통마늘볶음(10)", "메밀막국수(3.5.6.13)", "모듬쌈&쌈장(5.6.13)", "백김치(6)", "호박인절미(5)"],
+                lunchKcal: "정보없음",
+                dinner: ["지코바덮밥&눈꽃치즈(1.2.5.6.12.15)", "팽이버섯된장국(5.6.8.9.18)", "블랙회오리감자튀김(5)", "구운버섯샐러드(5.6)", "배추김치(9)", "토마토황도절임(11.12)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-25": {
+                day: "화",
+                lunch: ["홍국쌀밥", "돼지순대국(2.5.6.9.10.13.16)", "울란떡갈비&파채(1.2.5.6.10.12.15.16)", "계란장조림(1.5.6.13)", "야채스틱&쌈장(5.6)", "석박지(9)", "왕보루빵(1.2.5.6)"],
+                lunchKcal: "정보없음",
+                dinner: ["수수밥", "잔파달걀국(1.8.9.18)", "돼지갈비후라이드&청양마요소스(1.2.5.6.13.15)", "알감자버터구이(2.5.13)", "배추김치(9)", "블랙사파이어주스(13)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-26": {
+                day: "수 (다솜DAY)",
+                lunch: ["날치알김치볶음밥(1.2.5.6.9.13.16.18)", "게살면두부탕(1.5.8.9.18)", "치폴레생선까스&새우칩(1.2.5.6.12.13)", "바질크림뇨끼(2.5.6.10.13.18)", "열무김치(9)", "딸기주스"],
+                lunchKcal: "정보없음",
+                dinner: ["클로렐라밥", "오만둥이된장국(5.6.8.9.18)", "국물닭갈비(15)", "동글비엔나볶음(2.5.6.10.12.13.15.16.18)", "참나물사과샐러드(5.6)", "배추김치(9)", "저당포도슬러시(13)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-27": {
+                day: "목",
+                lunch: ["현미밥", "유부주머니어묵국(1.5.6.8.9.10.16.18)", "김치제육볶음(5.6.9.10.12.13)", "츄러스고구마맛탕(1.2.5.6.13)", "백김치(6)", "블루베리마카롱(1.2.6)"],
+                lunchKcal: "정보없음",
+                dinner: ["혼합잡곡밥(5)", "소고기콩나물국(5.6.8.9.16.18)", "불향쭈꾸미불고기(5.6.10.12.13.18)", "베이컨크림떡볶이(2.5.6.10.13.18)", "깍두기(9)", "레몬마들렌(1.2.5.6)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-28": {
+                day: "금 (잔반없는 날)",
+                lunch: ["냉우동(1.2.3.5.6.7.8.9.18)", "돈육김치밥버거(1.2.5.6.9.10.13.15.16)", "모짜렐라치즈돈까스(1.2.5.6.10.12.13.16.18)", "부추숙주나물", "깍두기(9)", "파인애플"],
+                lunchKcal: "정보없음",
+                dinner: ["인델리카레라이스(2.5.6.10.12.13.16.18)", "두부장국(5.6.8.9.18)", "갈떡갈떡꼬치(5.6.10.12.13.15.16)", "양배추코울슬로(1.2.5.6.13)", "배추김치(9)", "망고라씨(2)"],
+                dinnerKcal: "정보없음"
+            },
+            "2026-08-31": {
+                day: "월",
+                lunch: ["백미밥", "낙지연포탕(5.6.8.9.18)", "고구마함박스테이크(1.2.5.6.12.13.15.16.18)", "야채비빔면(5.6.13)", "새우살애호박볶음(5.9.13)", "배추김치(9)", "옥수수빵(1.2.5.6)"],
+                lunchKcal: "722 kcal",
+                dinner: ["기장밥", "부대찌개&라면사리(1.2.5.6.8.9.10.13.15.16.18)", "오징어까스&양파드레싱(1.5.6.13.17)", "찰떡가마보꼬어묵조림(1.5.6.13)", "백김치(6)", "초코우유(2)"],
+                dinnerKcal: "698 kcal"
+            }
+        };
+
+        const dateSelect = document.getElementById('date-select');
+        const dates = Object.keys(mealData);
+
+        // 드롭다운 날짜 옵션 생성
+        dates.forEach(d => {
+            const option = document.createElement('option');
+            option.value = d;
+            option.textContent = `${d.substring(5)} (${mealData[d].day})`;
+            dateSelect.appendChild(option);
+        });
+
+        // 식단 화면에 표시하는 함수
+        function renderMeal(date) {
+            const data = mealData[date];
+            if (!data) return;
+
+            document.getElementById('lunch-kcal').innerText = data.lunchKcal;
+            document.getElementById('dinner-kcal').innerText = data.dinnerKcal;
+
+            const lunchList = document.getElementById('lunch-menu');
+            lunchList.innerHTML = data.lunch.map(item => `<li class="flex justify-between py-1 border-b border-slate-50"><span>${item}</span></li>`).join('');
+
+            const dinnerList = document.getElementById('dinner-menu');
+            dinnerList.innerHTML = data.dinner.map(item => `<li class="flex justify-between py-1 border-b border-slate-50"><span>${item}</span></li>`).join('');
+        }
+
+        function onDateChange() {
+            renderMeal(dateSelect.value);
+        }
+
+        function changeDate(offset) {
+            const currentIndex = dates.indexOf(dateSelect.value);
+            const newIndex = currentIndex + offset;
+            if (newIndex >= 0 && newIndex < dates.length) {
+                dateSelect.value = dates[newIndex];
+                renderMeal(dates[newIndex]);
+            }
+        }
+
+        // 초기 실행: 오늘 날짜(8월 5일)로 기본 세팅
+        const initialDate = "2026-08-05";
+        dateSelect.value = mealData[initialDate] ? initialDate : dates[0];
+        renderMeal(dateSelect.value);
+    </script>
+</body>
+</html>
