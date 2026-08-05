@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>급식 알레르기 알리미</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #f3f4f6;
+      padding: 16px;
+      color: #1f2937;
+    }
+    .header {
+      max-width: 800px;
+      margin: 0 auto 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .header h1 { font-size: 1.25rem; font-weight: bold; }
+    .btn-allergy {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-allergy:hover { background: #dc2626; }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-weight: bold;
+      font-size: 1.05rem;
+      border-bottom: 2px solid #f3f4f6;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .badge {
+      font-size: 0.75rem;
+      background: #fef3c7;
+      color: #d97706;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .meal-type {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #2563eb;
+      margin: 10px 0 4px;
+    }
+    .meal-list { list-style: none; font-size: 0.9rem; }
+    .meal-item { padding: 3px 6px; border-radius: 4px; margin-bottom: 2px; }
+    
+    /* 🚨 선택한 알레르기 들어간 메뉴 빨간색 강조 */
+    .danger {
+      background-color: #fee2e2 !important;
+      color: #dc2626 !important;
+      font-weight: bold !important;
+    }
+
+    /* 팝업 모달 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 450px;
+      border-radius: 16px;
+      padding: 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 6px; }
+    .modal-desc { font-size: 0.8rem; color: #6b7280; margin-bottom: 16px; }
+    .allergy-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .allergy-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      background: #f9fafb;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-close {
+      width: 100%;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>🍱 대명여고 8월 급식표</h1>
+    <button class="btn-allergy" onclick="openModal()">⚠️ 알레르기 설정</button>
+  </div>
+
+  <div class="container" id="cardContainer"></div>
+
+  <!-- 알레르기 선택 팝업 -->
+  <div class="modal-overlay" id="allergyModal">
+    <div class="modal-content">
+      <div class="modal-title">🚨 알레르기 유발물질 선택</div>
+      <div class="modal-desc">체크한 번호가 포함된 식단 메뉴가 빨간색으로 표시됩니다.</div>
+      
+      <div class="allergy-grid" id="allergyGrid"></div>
+
+      <button class="btn-close" onclick="closeModal()">설정 완료 및 적용</button>
+    </div>
+  </div>
+
+  <script>
+    // 식약처 지정 19가지 알레르기 유발 물질 목록[span_0](start_span)[span_0](end_span)
+    const ALLERGY_LIST = [
+      { id: 1, name: "알류(계란)" },
+      { id: 2, name: "우유" },
+      { id: 3, name: "메밀" },
+      { id: 4, name: "땅콩" },
+      { id: 5, name: "대두(콩)" },
+      { id: 6, name: "밀" },
+      { id: 7, name: "고등어" },
+      { id: 8, name: "게" },
+      { id: 9, name: "새우" },
+      { id: 10, name: "돼지고기" },
+      { id: 11, name: "복숭아" },
+      { id: 12, name: "토마토" },
+      { id: 13, name: "아황산류" },
+      { id: 14, name: "호두" },
+      { id: 15, name: "닭고기" },
+      { id: 16, name: "쇠고기" },
+      { id: 17, name: "오징어" },
+      { id: 18, name: "조개류" },
+      { id: 19, name: "잣" }
+    ];
+
+    // 선택된 알레르기 번호 저장을 위한 Set
+    let selectedAllergies = new Set();
+
+    // 8월 대명여고 샘플 식단[span_1](start_span)[span_1](end_span)
+    const mealData = [
+      {
+        date: "8월 3일 (월)", note: "개학식",
+        lunch: ["찹쌀밥", "도토리묵사발(5.6.9.16)", "불향쭈꾸미불고기(5.6.10.12.13.18)", "갈릭고르곤졸라피자(6.12.13)", "콩나물무침(5)", "열무김치(9)", "개학케이크(1.2.5.6)"],
+        dinner: ["참치밥버거(1.2.5.6.9.10.13.15.16.18)", "우동장국(1.2.5.6.7.8.9.18)", "로제구슬떡볶이(1.2.5.6.10.15.16)", "야채튀김&간장(1.5.6.8.9.13.17.18)", "깍두기(9)", "제주청귤주스(13)"]
+      },
+      {
+        date: "8월 4일 (화)", note: "",
+        lunch: ["홍국쌀밥", "소고기샤브샤브국(5.6.8.9.16.18)", "언양바싹불고기(1.2.5.6.10.12.15.16)", "해물볶음면(5.6.8.9.13.17.18)", "수제양파장아찌(5.6.13)", "배추김치(9)", "골드키위"],
+        dinner: ["현미밥", "돈육김치찌개(5.8.9.10.13.16.18)", "분모자간장찜닭(5.6.13.15.18)", "납작만두&야채무침(1.5.6.13)", "백김치(6)", "쿠앤크아몬드"]
+      },
+      {
+        date: "8월 5일 (수)", note: "다채움DAY",
+        lunch: ["나물비빔밥&계란프라이(1.5.6.13)", "우렁강된장찌개(5.6.8.9.18)", "가지라자냐(2.5.6.12.13)", "단호박고로케&케첩(1.5.6.12)", "도시락김", "열무김치(9)", "블루베리요거트"],
+        dinner: ["백미밥", "소고기당면국(5.6.8.9.16.18)", "순후추치킨스테이크(1.2.5.6.10.12.13.15.16)", "볼어묵볶음(1.5.6.13.18)", "배추김치(9)", "메론슈(1.2.5.6)"]
+      },
+      {
+        date: "8월 6일 (목)", note: "",
+        lunch: ["현미밥", "소고기떡국(1.8.9.16.18)", "고추장오리불고기", "베이컨감자채볶음(5.10)", "유자치커리샐러드(1.2.5.6.13)", "배추김치(9)", "수박에이드(13)"],
+        dinner: ["차슈돈코츠라멘(1.2.5.6.10.13.15.16)", "무장아찌밥(1.2.5.6.9.13.16.18)", "허니버터지파이(1.5.6.15.18)", "나쵸샐러드(1.2.5.6.13.16)", "백김치(6)", "복숭아푸딩(11)"]
+      },
+      {
+        date: "8월 7일 (금)", note: "잔반없는 날",
+        lunch: ["달걀볶음밥(1.2.5.6.10.13.15.16.18)", "해물짬뽕국(5.6.8.9.13.16.17.18)", "찹쌀꿔바로우(1.5.6.10.12.13.18)", "고추잡채&꽃빵(5.6.10)", "하트단무지", "배추김치(9)", "식혜"],
+        dinner: ["수수밥", "삼색물만둣국(1.5.6.8.9.10.16.18)", "큐브찹스테이크(5.6.10.12.13.16)", "냉파스타샐러드(1.2.5.6.12.13)", "배추김치(9)", "딸기크림치즈떡"]
+      }
+    ];
+
+    // 팝업 내 체크박스 그리드 생성
+    function renderAllergyList() {
+      const grid = document.getElementById("allergyGrid");
+      grid.innerHTML = "";
+      
+      ALLERGY_LIST.forEach(item => {
+        const label = document.createElement("label");
+        label.className = "allergy-item";
+        label.innerHTML = `
+          <input type="checkbox" value="${item.id}" onchange="toggleAllergy(${item.id})">
+          <span><b>${item.id}.</b> ${item.name}</span>
+        `;
+        grid.appendChild(label);
+      });
+    }
+
+    // 체크 토글
+    function toggleAllergy(id) {
+      if (selectedAllergies.has(id)) {
+        selectedAllergies.delete(id);
+      } else {
+        selectedAllergies.add(id);
+      }
+      renderCards();
+    }
+
+    // 알레르기 매칭 검사 및 HTML 태그 반환
+    function checkAllergyAndFormat(menuStr) {
+      const match = menuStr.match(/(.+?)\(([\d.]+)\)/);
+      if (!match) return `<li class="meal-item">${menuStr}</li>`;
+
+      const menuName = match[1];
+      const nums = match[2].split('.').map(Number);
+
+      // 내가 선택한 알레르기 항목 중 하나라도 포함되어 있는지
+      const isDangerous = nums.some(n => selectedAllergies.has(n));
+
+      if (isDangerous) {
+        return `<li class="meal-item danger">⚠️ ${menuStr}</li>`;
+      }
+      return `<li class="meal-item">${menuStr}</li>`;
+    }
+
+    // 화면 전체 카드 렌더링
+    function renderCards() {
+      const container = document.getElementById("cardContainer");
+      container.innerHTML = "";
+
+      mealData.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const lunchList = item.lunch.map(m => checkAllergyAndFormat(m)).join("");
+        const dinnerList = item.dinner.map(m => checkAllergyAndFormat(m)).join("");
+
+        const badgeHtml = item.note ? `<span class="badge">${item.note}</span>` : "";
+
+        card.innerHTML = `
+          <div class="card-title">
+            <span>${item.date}</span>
+            ${badgeHtml}
+          </div>
+          <div class="meal-type">☀️ 중식</div>
+          <ul class="meal-list">${lunchList}</ul>
+          <div class="meal-type">🌙 석식</div>
+          <ul class="meal-list">${dinnerList}</ul>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function openModal() {
+      document.getElementById("allergyModal").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("allergyModal").classList.remove("active");
+    }
+
+    // 앱 시작
+    renderAllergyList();
+    renderCards();
+  </script>
+</body>
+</html>
