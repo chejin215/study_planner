@@ -57,7 +57,7 @@
     .meal-type { font-weight: bold; color: #2563eb; background: #eff6ff; padding: 4px; border-radius: 4px; margin-bottom: 6px; font-size: 12px; }
     .meal-type.dinner { color: #d97706; background: #fffbebfb; }
     .day-date { font-weight: bold; margin-bottom: 4px; color: #1e293b; }
-    .day-note { font-size: 11px; color: #ef4444; margin-bottom: 8px; font-weight: normal; }
+    .day-note { font-size: 11px; color: #ef4444; margin-bottom: 4px; font-weight: normal; }
     .menu-group { margin-bottom: 12px; text-align: left; }
     .menu-item { font-size: 12px; line-height: 1.4; color: #334155; margin-bottom: 3px; }
     .allergy-info { font-size: 10px; color: #94a3b8; }
@@ -65,14 +65,14 @@
 </head>
 <body>
 
-  <!-- 상단 Header -->
+  <!-- 상단 Header (팝업창 및 메뉴 포함) -->
   <header id="header">
     <div class="header-title">학교 급식 안내 (월간 뷰어)</div>
     
-    <!-- 주차 선택 드롭다운 -->
+    <!-- 주차 선택 팝업 드롭다운 -->
     <div class="week-select-wrapper">
       <button class="week-select-btn" onclick="toggleDropdown()">
-        <span id="current-week-label">1주차 (8/3~8/7)</span> ▼
+        <span id="current-week-label">1주차 식단</span> ▼
       </button>
       <div id="weekDropdown" class="dropdown-menu">
         <button onclick="selectWeek(1)" class="active">1주차 (8/3 ~ 8/7)</button>
@@ -223,7 +223,9 @@
       const selected = menuData[weekNum];
       
       if (!selected) {
-        document.getElementById("meal-content").innerHTML = "<p style='padding: 20px; text-align: center;'>해당 주차의 식단 데이터가 아직 없습니다.</p>";
+        document.getElementById("meal-content").innerHTML = "<p style='padding: 30px; text-align: center; color: #64748b;'>해당 주차의 식단 데이터가 아직 없습니다.</p>";
+        document.getElementById("current-week-label").innerText = weekNum + "주차 식단";
+        document.getElementById("display-week-title").innerText = weekNum + "주차 식단표";
         return;
       }
 
@@ -241,7 +243,7 @@
       let tableHTML = `<table class="meal-table"><thead><tr>`;
       selected.days.forEach(d => {
         tableHTML += `<th>
-          <div class="day-date">${d.date}(${d.day})</div>
+          <div class="day-date">${d.date} (${d.day})</div>
           ${d.note ? `<div class="day-note">[${d.note}]</div>` : ''}
         </th>`;
       });
@@ -250,7 +252,7 @@
       selected.days.forEach(d => {
         tableHTML += `<td>`;
         
-        // 중식 표시
+        // 중식 표출
         if (d.lunch && d.lunch.length > 0) {
           tableHTML += `<div class="meal-type">☀️ 중식</div><div class="menu-group">`;
           d.lunch.forEach(item => {
@@ -260,7 +262,7 @@
           tableHTML += `</div>`;
         }
 
-        // 석식 표시
+        // 석식 표출
         if (d.dinner && d.dinner.length > 0) {
           tableHTML += `<div class="meal-type dinner">🌙 석식</div><div class="menu-group">`;
           d.dinner.forEach(item => {
