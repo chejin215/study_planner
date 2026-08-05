@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>월간 급식표 뷰어</title>
+  <title>대명여고 8월 급식 알러지 확인 뷰어</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f5f7; color: #333; }
     
-    /* 상단 헤더 / 팝업 메뉴 영역 */
+    /* 상단 헤더 */
     #header {
       position: sticky; top: 0; left: 0; right: 0;
-      height: 56px; background-color: #ffffff;
+      height: 60px; background-color: #ffffff;
       border-bottom: 1px solid #e1e4e8;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 20px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .header-title { font-size: 16px; font-weight: bold; color: #1e293b; }
+    .header-title { font-size: 18px; font-weight: bold; color: #1e293b; }
     
-    /* 주별 선택 드롭다운 (팝업창) */
+    /* 주별 선택 드롭다운 */
     .week-select-wrapper { position: relative; display: inline-block; }
     .week-select-btn {
       background-color: #3b82f6; color: #fff; border: none;
@@ -28,9 +28,10 @@
     .week-select-btn:hover { background-color: #2563eb; }
     .dropdown-menu {
       display: none; position: absolute; right: 0; top: 45px;
-      background-color: #ffffff; min-width: 160px;
+      background-color: #ffffff; min-width: 180px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;
+      z-index: 1001;
     }
     .dropdown-menu button {
       width: 100%; padding: 12px 16px; text-align: left;
@@ -41,35 +42,60 @@
     .dropdown-menu button.active { font-weight: bold; color: #2563eb; background-color: #eff6ff; }
     .show { display: block; }
 
-    /* 급식표 본문 영역 */
-    .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+    /* 컨테이너 */
+    .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+
+    /* 알러지 필터 세션 */
+    .filter-card {
+      background: #ffffff; border-radius: 12px; padding: 20px;
+      margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;
+    }
+    .filter-header { font-size: 15px; font-weight: bold; color: #0f172a; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .reset-btn { font-size: 12px; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 4px; cursor: pointer; color: #475569; }
+    .reset-btn:hover { background: #e2e8f0; }
+
+    .allergy-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px;
+    }
+    .allergy-item {
+      display: flex; align-items: center; gap: 6px; font-size: 13px; color: #334155;
+      background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; user-select: none;
+    }
+    .allergy-item:hover { background: #f1f5f9; }
+    .allergy-item input { cursor: pointer; accent-color: #ef4444; }
+
+    /* 급식표 본문 */
     .meal-card {
-      background: #ffffff; border-radius: 12px; padding: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
+      background: #ffffff; border-radius: 12px; padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow-x: auto;
     }
     .week-title { font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #0f172a; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; }
     
-    /* 급식 테이블 스타일 */
-    .meal-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-    .meal-table th, .meal-table td { border: 1px solid #cbd5e1; padding: 10px 6px; text-align: center; font-size: 13px; }
+    /* 급식 테이블 */
+    .meal-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; min-width: 800px; }
+    .meal-table th, .meal-table td { border: 1px solid #cbd5e1; padding: 8px 6px; text-align: center; font-size: 13px; }
     .meal-table th { background-color: #f8fafc; color: #475569; font-weight: 600; }
-    .meal-table td { vertical-align: top; height: 180px; width: 20%; }
+    .meal-table td { vertical-align: top; height: 200px; width: 20%; }
     .meal-type { font-weight: bold; color: #2563eb; background: #eff6ff; padding: 4px; border-radius: 4px; margin-bottom: 6px; font-size: 12px; }
     .meal-type.dinner { color: #d97706; background: #fffbebfb; }
     .day-date { font-weight: bold; margin-bottom: 4px; color: #1e293b; }
-    .day-note { font-size: 11px; color: #ef4444; margin-bottom: 4px; font-weight: normal; }
-    .menu-group { margin-bottom: 12px; text-align: left; }
-    .menu-item { font-size: 12px; line-height: 1.4; color: #334155; margin-bottom: 3px; }
-    .allergy-info { font-size: 10px; color: #94a3b8; }
+    .day-note { font-size: 11px; color: #ef4444; margin-bottom: 4px; font-weight: bold; }
+    .menu-group { margin-bottom: 10px; text-align: left; }
+    
+    /* 메뉴 및 알러지 태그 */
+    .menu-item { font-size: 12px; line-height: 1.5; color: #334155; margin-bottom: 4px; padding: 3px 5px; border-radius: 4px; transition: all 0.2s; }
+    .menu-item.highlight-danger { background-color: #fee2e2; border-left: 3px solid #ef4444; font-weight: bold; color: #991b1b; }
+    
+    .allergy-badge { font-size: 10px; padding: 1px 4px; border-radius: 3px; background-color: #e2e8f0; color: #64748b; margin-left: 2px; display: inline-block; }
+    .allergy-badge.danger { background-color: #ef4444; color: #ffffff; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <!-- 상단 Header (팝업창 및 메뉴 포함) -->
+  <!-- Header -->
   <header id="header">
-    <div class="header-title">학교 급식 안내 (월간 뷰어)</div>
+    <div class="header-title">대명여고 2026년 8월 급식 알러지 안내 뷰어</div>
     
-    <!-- 주차 선택 팝업 드롭다운 -->
     <div class="week-select-wrapper">
       <button class="week-select-btn" onclick="toggleDropdown()">
         <span id="current-week-label">1주차 식단</span> ▼
@@ -83,26 +109,46 @@
     </div>
   </header>
 
-  <!-- 급식표 표시 메인 컨테이너 -->
   <main class="container">
+    <!-- 알러지 선택 필터 -->
+    <div class="filter-card">
+      <div class="filter-header">
+        <span>⚠️ 나의 알러지 정보 선택 (선택 시 해당 식자재 포함 메뉴가 빨간색으로 강조됩니다)</span>
+        <button class="reset-btn" onclick="resetAllergies()">전체 해제</button>
+      </div>
+      <div class="allergy-grid" id="allergy-checkboxes">
+        <!-- JS로 동적 생성 -->
+      </div>
+    </div>
+
+    <!-- 급식표 -->
     <div class="meal-card">
       <div class="week-title" id="display-week-title">1주차 식단표</div>
       <div id="meal-content">
-        <!-- JS를 통해 데이터가 들어옵니다 -->
+        <!-- JS로 동적 생성 -->
       </div>
     </div>
   </main>
 
   <script>
-    // 급식 데이터 구조
+    // 식약처 기준 19가지 알레르기 유발물질 번호 매핑
+    const ALLERGY_MAP = {
+      1: "난류", 2: "우유", 3: "메밀", 4: "땅콩", 5: "대두",
+      6: "밀", 7: "고등어", 8: "게", 9: "새우", 10: "돼지고기",
+      11: "복숭아", 12: "토마토", 13: "아황산류", 14: "호두", 15: "닭고기",
+      16: "쇠고기", 17: "오징어", 18: "조개류", 19: "잣"
+    };
+
+    let selectedAllergies = new Set();
+    let currentWeek = 1;
+
+    // 8월 전체 식단 데이터
     const menuData = {
       1: {
         title: "1주차 (8월 3일 ~ 8월 7일)",
         days: [
           {
-            "date": "8/3",
-            "day": "월",
-            "note": "개학식",
+            "date": "8/3", "day": "월", "note": "개학식",
             "lunch": [
               { "menu": "찹쌀밥", "allergies": [] },
               { "menu": "도토리묵사발", "allergies": [5, 6, 9, 16] },
@@ -122,9 +168,7 @@
             ]
           },
           {
-            "date": "8/4",
-            "day": "화",
-            "note": "",
+            "date": "8/4", "day": "화", "note": "",
             "lunch": [
               { "menu": "홍국쌀밥", "allergies": [] },
               { "menu": "소고기샤브샤브국", "allergies": [5, 6, 8, 9, 16, 18] },
@@ -144,9 +188,7 @@
             ]
           },
           {
-            "date": "8/5",
-            "day": "수",
-            "note": "다채움DAY",
+            "date": "8/5", "day": "수", "note": "다채움DAY",
             "lunch": [
               { "menu": "나물비빔밥&계란프라이", "allergies": [1, 5, 6, 13] },
               { "menu": "우렁강된장찌개", "allergies": [5, 6, 8, 9, 18] },
@@ -166,9 +208,7 @@
             ]
           },
           {
-            "date": "8/6",
-            "day": "목",
-            "note": "",
+            "date": "8/6", "day": "목", "note": "",
             "lunch": [
               { "menu": "현미밥", "allergies": [] },
               { "menu": "소고기떡국", "allergies": [1, 8, 9, 16, 18] },
@@ -188,9 +228,7 @@
             ]
           },
           {
-            "date": "8/7",
-            "day": "금",
-            "note": "잔반없는 날",
+            "date": "8/7", "day": "금", "note": "잔반없는 날",
             "lunch": [
               { "menu": "달걀볶음밥", "allergies": [1, 2, 5, 6, 10, 13, 15, 16, 18] },
               { "menu": "해물짬뽕국", "allergies": [5, 6, 8, 9, 13, 16, 17, 18] },
@@ -210,36 +248,369 @@
             ]
           }
         ]
+      },
+      2: {
+        title: "2주차 (8월 10일 ~ 8월 14일)",
+        days: [
+          {
+            "date": "8/10", "day": "월", "note": "",
+            "lunch": [
+              { "menu": "백미밥", "allergies": [] },
+              { "menu": "사골우거지국", "allergies": [5, 16] },
+              { "menu": "마라상궈", "allergies": [1, 2, 5, 6, 9, 10, 13, 15, 16, 17, 18] },
+              { "menu": "통모짜치즈카츠", "allergies": [1, 2, 5, 6] },
+              { "menu": "포두부오이냉채", "allergies": [13] },
+              { "menu": "열무김치", "allergies": [9] },
+              { "menu": "얼려먹는요구르트", "allergies": [2] }
+            ],
+            "dinner": [
+              { "menu": "기장밥", "allergies": [] },
+              { "menu": "스팸김치짜글이", "allergies": [1, 2, 5, 6, 9, 10, 13, 15, 16] },
+              { "menu": "연탄간장불고기", "allergies": [5, 6, 10, 12, 13] },
+              { "menu": "참치마요&불닭김", "allergies": [1, 5, 16, 18] },
+              { "menu": "백김치", "allergies": [6] },
+              { "menu": "과채주스", "allergies": [13] }
+            ]
+          },
+          {
+            "date": "8/11", "day": "화", "note": "",
+            "lunch": [
+              { "menu": "현미밥", "allergies": [] },
+              { "menu": "김치수제비국", "allergies": [1, 5, 6, 8, 9, 18] },
+              { "menu": "가자미 크런치까스&어니언소스", "allergies": [1, 5, 6, 13] },
+              { "menu": "모둠장조림", "allergies": [1, 5, 6, 10, 13, 18] },
+              { "menu": "요거트과일샐러드", "allergies": [1, 2, 5, 6] },
+              { "menu": "비름나물무침", "allergies": [] },
+              { "menu": "총각김치", "allergies": [9] }
+            ],
+            "dinner": [
+              { "menu": "치킨마요덮밥", "allergies": [1, 2, 5, 6, 13, 15, 18] },
+              { "menu": "두부된장국", "allergies": [5, 6, 8, 9, 18] },
+              { "menu": "스텔라떡볶이", "allergies": [] },
+              { "menu": "그린샐러드&키위드레싱", "allergies": [1, 2, 5, 6, 12] },
+              { "menu": "깍두기", "allergies": [9] },
+              { "menu": "망고워터젤리", "allergies": [] }
+            ]
+          },
+          {
+            "date": "8/12", "day": "수", "note": "생일축하의 날",
+            "lunch": [
+              { "menu": "쌀밥", "allergies": [] },
+              { "menu": "소고기미역국", "allergies": [5, 6, 8, 9, 16, 18] },
+              { "menu": "돼지갈비찜", "allergies": [5, 6, 10, 13, 18] },
+              { "menu": "오색잡채", "allergies": [1, 5, 6, 10, 13, 18] },
+              { "menu": "삼색나물&고추장", "allergies": [5, 6] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "생일빼빼로파이", "allergies": [1, 2, 5, 6] }
+            ],
+            "dinner": [
+              { "menu": "수수밥", "allergies": [] },
+              { "menu": "순살감자탕", "allergies": [5, 6, 10, 13, 16] },
+              { "menu": "미트볼파스타푸미", "allergies": [1, 2, 5, 6, 10, 12, 13, 15, 16] },
+              { "menu": "고구마그라탕", "allergies": [1, 2, 5, 6] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "바나나우유", "allergies": [2] }
+            ]
+          },
+          {
+            "date": "8/13", "day": "목", "note": "",
+            "lunch": [
+              { "menu": "혼합잡곡밥", "allergies": [5] },
+              { "menu": "감자옹심이국", "allergies": [1, 5, 6, 8, 9, 17, 18] },
+              { "menu": "훈제오리볶음&머스타드", "allergies": [1, 2, 5, 6, 12, 13] },
+              { "menu": "불고기치즈감자", "allergies": [2, 5, 6, 10, 12, 13, 15, 16, 18] },
+              { "menu": "찹쌀콩열무볶음", "allergies": [5, 13] },
+              { "menu": "총각김치", "allergies": [9] },
+              { "menu": "자두", "allergies": [] }
+            ],
+            "dinner": [
+              { "menu": "땡초고기볶음밥", "allergies": [2, 5, 6, 10, 13, 18] },
+              { "menu": "우동장국", "allergies": [1, 2, 5, 6, 7, 8, 9, 18] },
+              { "menu": "오컵돈까스", "allergies": [5, 6, 10, 12, 13, 16, 18] },
+              { "menu": "청포도구슬치즈샐러드", "allergies": [1, 2, 5, 6] },
+              { "menu": "깍두기", "allergies": [9] },
+              { "menu": "초코크로칸슈", "allergies": [1, 2, 5, 6] }
+            ]
+          },
+          {
+            "date": "8/14", "day": "금", "note": "말복",
+            "lunch": [
+              { "menu": "열무냉국수", "allergies": [1, 5, 6, 9, 13, 16] },
+              { "menu": "김가루밥", "allergies": [] },
+              { "menu": "자메이카치킨", "allergies": [2, 5, 6, 12, 15] },
+              { "menu": "오미 콘샐러드", "allergies": [1, 5, 13] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "수박과일화채", "allergies": [11] }
+            ],
+            "dinner": [
+              { "menu": "백미밥", "allergies": [] },
+              { "menu": "나가사끼짬뽕탕", "allergies": [5, 6, 9, 13, 17, 18] },
+              { "menu": "짜장불고기", "allergies": [2, 5, 6, 10, 13, 16] },
+              { "menu": "레몬크림새우", "allergies": [1, 5, 6, 9, 13] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "팝콘", "allergies": [2, 5] }
+            ]
+          }
+        ]
+      },
+      3: {
+        title: "3주차 (8월 17일 ~ 8월 21일)",
+        days: [
+          {
+            "date": "8/17", "day": "월", "note": "광복절 대체휴일",
+            "lunch": [], "dinner": []
+          },
+          {
+            "date": "8/18", "day": "화", "note": "",
+            "lunch": [
+              { "menu": "먹물빠에야볶음밥", "allergies": [1, 2, 5, 6, 8, 9, 12, 13, 17, 18] },
+              { "menu": "미소된장국", "allergies": [5, 6, 8, 9, 18] },
+              { "menu": "치즈함박스테이크", "allergies": [1, 2, 5, 6, 10, 12, 13, 15, 16] },
+              { "menu": "시금치프리타타", "allergies": [1, 2, 5, 10, 12] },
+              { "menu": "양상추샐러드", "allergies": [1, 2, 5, 6, 12] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "레몬에이드", "allergies": [] }
+            ],
+            "dinner": [
+              { "menu": "차조밥", "allergies": [] },
+              { "menu": "닭곰탕&당면사리", "allergies": [8, 9, 15, 18] },
+              { "menu": "곱돌이떡갈비", "allergies": [5, 6, 10, 12, 13, 15, 16, 18] },
+              { "menu": "오지치즈후라이", "allergies": [2, 5, 6, 10] },
+              { "menu": "총각김치", "allergies": [9] },
+              { "menu": "골드키위푸딩", "allergies": [] }
+            ]
+          },
+          {
+            "date": "8/19", "day": "수", "note": "",
+            "lunch": [
+              { "menu": "흑미잡곡밥", "allergies": [5] },
+              { "menu": "모듬어묵국", "allergies": [1, 5, 6, 8, 9, 18] },
+              { "menu": "보쌈&마늘소스", "allergies": [5, 6, 10, 12, 13, 18] },
+              { "menu": "해물파전", "allergies": [5, 6, 9, 13, 17] },
+              { "menu": "꼬시래기무침", "allergies": [5, 6, 13] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "씨없는포도", "allergies": [] }
+            ],
+            "dinner": [
+              { "menu": "나시고랭볶음밥", "allergies": [1, 2, 5, 6, 9, 12, 13, 15] },
+              { "menu": "미니쌀국수", "allergies": [5, 6, 8, 9, 15, 16, 18] },
+              { "menu": "고구마&스프링롤", "allergies": [1, 5, 6, 10, 12, 13, 16, 18] },
+              { "menu": "열대과일샐러드", "allergies": [1, 2, 5, 6, 11, 13] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "매실에이드", "allergies": [] }
+            ]
+          },
+          {
+            "date": "8/20", "day": "목", "note": "",
+            "lunch": [
+              { "menu": "백미밥", "allergies": [] },
+              { "menu": "북어콩나물국", "allergies": [1, 5, 6, 8, 9, 18] },
+              { "menu": "묵은지샤브찜", "allergies": [9, 10, 13] },
+              { "menu": "하트미니돈까스", "allergies": [1, 5, 6, 10, 12, 13, 18] },
+              { "menu": "흑임자연근샐러드", "allergies": [1, 5] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "블루베리미니도넛", "allergies": [1, 2, 5, 6] }
+            ],
+            "dinner": [
+              { "menu": "렌틸콩밥", "allergies": [] },
+              { "menu": "짬뽕수제비국", "allergies": [5, 6, 8, 9, 17, 18] },
+              { "menu": "크린치탕수육&소스", "allergies": [1, 5, 6, 10, 11, 12, 13, 18] },
+              { "menu": "토마토계란볶음", "allergies": [1, 5, 12] },
+              { "menu": "백김치", "allergies": [6] },
+              { "menu": "사과요거트", "allergies": [13] }
+            ]
+          },
+          {
+            "date": "8/21", "day": "금", "note": "텀블러DAY",
+            "lunch": [
+              { "menu": "참치야채비빔밥", "allergies": [5, 6, 13, 16, 18] },
+              { "menu": "숭늉", "allergies": [] },
+              { "menu": "콘소메이징치킨", "allergies": [1, 2, 5, 6, 15] },
+              { "menu": "단호박고구마샐러드", "allergies": [1, 2, 5, 13] },
+              { "menu": "토마토카프레제", "allergies": [2, 12, 13] },
+              { "menu": "열무김치", "allergies": [9] },
+              { "menu": "자몽허니블랙티(텀블러)", "allergies": [13] }
+            ],
+            "dinner": [
+              { "menu": "투움바파스타", "allergies": [1, 2, 5, 6, 9, 10, 12, 13] },
+              { "menu": "김가루밥", "allergies": [] },
+              { "menu": "비트토마토피클", "allergies": [2, 5, 6, 12, 13, 16] },
+              { "menu": "회오리오랑핫도그", "allergies": [1, 2, 5, 6, 10, 16] },
+              { "menu": "모듬피클", "allergies": [] },
+              { "menu": "갈릭크로와상", "allergies": [2, 5, 6] }
+            ]
+          }
+        ]
+      },
+      4: {
+        title: "4주차 (8월 24일 ~ 8월 28일)",
+        days: [
+          {
+            "date": "8/24", "day": "월", "note": "",
+            "lunch": [
+              { "menu": "혼합잡곡밥", "allergies": [5] },
+              { "menu": "소고기육개장", "allergies": [1, 5, 6, 8, 9, 16, 18] },
+              { "menu": "대패마늘족발", "allergies": [10] },
+              { "menu": "메밀막국수", "allergies": [3, 5, 6, 13] },
+              { "menu": "모둠쌈&쌈장", "allergies": [5, 6, 13] },
+              { "menu": "백김치", "allergies": [6] },
+              { "menu": "호박시루떡", "allergies": [5] }
+            ],
+            "dinner": [
+              { "menu": "지코바덮밥&눈꽃치즈", "allergies": [1, 2, 5, 6, 12, 15] },
+              { "menu": "팽이버섯된장국", "allergies": [5, 6, 8, 9, 18] },
+              { "menu": "블랙허니오리훈제구이", "allergies": [5] },
+              { "menu": "구운버섯샐러드", "allergies": [5, 6] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "토마토청포도푸딩", "allergies": [11, 12] }
+            ]
+          },
+          {
+            "date": "8/25", "day": "화", "note": "",
+            "lunch": [
+              { "menu": "백미밥", "allergies": [] },
+              { "menu": "돼지순대국", "allergies": [2, 5, 6, 9, 10, 13, 16] },
+              { "menu": "올랜떡갈비&파채", "allergies": [1, 2, 5, 6, 10, 12, 15, 16] },
+              { "menu": "계란장조림", "allergies": [1, 5, 6, 13] },
+              { "menu": "야채스틱&쌈장", "allergies": [5, 6] },
+              { "menu": "석박지", "allergies": [9] },
+              { "menu": "찰보리빵", "allergies": [1, 2, 5, 6] }
+            ],
+            "dinner": [
+              { "menu": "수수밥", "allergies": [] },
+              { "menu": "잔치국수", "allergies": [1, 8, 9, 18] },
+              { "menu": "돼지갈비후라이드&청양마요소스", "allergies": [1, 2, 5, 6, 13, 15] },
+              { "menu": "알감자버터구이", "allergies": [2, 5, 13] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "블랙사파이어주스", "allergies": [13] }
+            ]
+          },
+          {
+            "date": "8/26", "day": "수", "note": "다채움DAY",
+            "lunch": [
+              { "menu": "날치알김치볶음밥", "allergies": [1, 2, 5, 6, 9, 13, 16, 18] },
+              { "menu": "게살순두부탕", "allergies": [1, 5, 8, 9, 18] },
+              { "menu": "치폴레생선까스&알새우칩", "allergies": [1, 2, 5, 6, 12, 13] },
+              { "menu": "바질크림뇨끼", "allergies": [2, 5, 6, 10, 13, 18] },
+              { "menu": "열무김치", "allergies": [9] },
+              { "menu": "딸기주스", "allergies": [] }
+            ],
+            "dinner": [
+              { "menu": "현미밥", "allergies": [] },
+              { "menu": "유부주머니어묵국", "allergies": [1, 5, 6, 8, 9, 10, 16, 18] },
+              { "menu": "김치제육볶음", "allergies": [5, 6, 9, 10, 12, 13] },
+              { "menu": "츄러스고구마맛탕", "allergies": [1, 2, 5, 6, 13] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "블루베리마카롱", "allergies": [1, 2, 6] }
+            ]
+          },
+          {
+            "date": "8/27", "day": "목", "note": "",
+            "lunch": [
+              { "menu": "클로렐라밥", "allergies": [] },
+              { "menu": "오만둥이드엔장국", "allergies": [5, 6, 8, 9, 18] },
+              { "menu": "국물닭갈비", "allergies": [15] },
+              { "menu": "동글비엔나떡볶음", "allergies": [2, 5, 6, 10, 12, 13, 15, 16, 18] },
+              { "menu": "참나물사과샐러드", "allergies": [5, 6] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "저당포도슬러시", "allergies": [13] }
+            ],
+            "dinner": [
+              { "menu": "혼합잡곡밥", "allergies": [5] },
+              { "menu": "소고기콩나물국", "allergies": [5, 6, 8, 9, 16, 18] },
+              { "menu": "불향쭈꾸미불고기", "allergies": [5, 6, 10, 12, 13, 18] },
+              { "menu": "베이컨크림떡볶이", "allergies": [2, 5, 6, 10, 13, 18] },
+              { "menu": "깍두기", "allergies": [9] },
+              { "menu": "레몬마들렌", "allergies": [1, 2, 5, 6] }
+            ]
+          },
+          {
+            "date": "8/28", "day": "금", "note": "",
+            "lunch": [
+              { "menu": "냉우동", "allergies": [1, 2, 3, 5, 6, 7, 8, 9, 18] },
+              { "menu": "돈육김치볶음밥", "allergies": [1, 2, 5, 6, 9, 10, 13, 15, 16] },
+              { "menu": "모짜렐라치즈돈까스", "allergies": [1, 2, 5, 6, 10, 12, 13, 16, 18] },
+              { "menu": "부추숙주나물", "allergies": [] },
+              { "menu": "깍두기", "allergies": [9] },
+              { "menu": "파인애플", "allergies": [] }
+            ],
+            "dinner": [
+              { "menu": "인델리카레라이스", "allergies": [2, 5, 6, 10, 12, 13, 16, 18] },
+              { "menu": "두부장국", "allergies": [5, 6, 8, 9, 18] },
+              { "menu": "갈릭갈매기꼬치", "allergies": [5, 6, 10, 12, 13, 15, 16] },
+              { "menu": "양배추코올슬로", "allergies": [1, 2, 5, 6, 13] },
+              { "menu": "배추김치", "allergies": [9] },
+              { "menu": "망고라씨", "allergies": [2] }
+            ]
+          }
+        ]
       }
     };
+
+    // 알러지 체크박스 초기화
+    function initAllergyFilters() {
+      const container = document.getElementById("allergy-checkboxes");
+      let html = "";
+      for (const [code, name] of Object.entries(ALLERGY_MAP)) {
+        html += `
+          <label class="allergy-item">
+            <input type="checkbox" value="${code}" onchange="toggleAllergy(${code})">
+            <span>${code}.${name}</span>
+          </label>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    // 알러지 토글 선택
+    function toggleAllergy(code) {
+      if (selectedAllergies.has(code)) {
+        selectedAllergies.delete(code);
+      } else {
+        selectedAllergies.add(code);
+      }
+      renderMealTable();
+    }
+
+    // 알러지 리셋
+    function resetAllergies() {
+      selectedAllergies.clear();
+      const checkboxes = document.querySelectorAll("#allergy-checkboxes input");
+      checkboxes.forEach(cb => cb.checked = false);
+      renderMealTable();
+    }
 
     // 드롭다운 토글
     function toggleDropdown() {
       document.getElementById("weekDropdown").classList.toggle("show");
     }
 
-    // 주차 선택 및 식단 변경
+    // 주차 선택
     function selectWeek(weekNum) {
-      const selected = menuData[weekNum];
+      currentWeek = weekNum;
       
-      if (!selected) {
-        document.getElementById("meal-content").innerHTML = "<p style='padding: 30px; text-align: center; color: #64748b;'>해당 주차의 식단 데이터가 아직 없습니다.</p>";
-        document.getElementById("current-week-label").innerText = weekNum + "주차 식단";
-        document.getElementById("display-week-title").innerText = weekNum + "주차 식단표";
-        return;
-      }
-
       document.getElementById("current-week-label").innerText = weekNum + "주차 식단";
-      document.getElementById("display-week-title").innerText = selected.title;
+      document.getElementById("display-week-title").innerText = menuData[weekNum].title;
 
-      // 액티브 클래스 변경
       const buttons = document.querySelectorAll("#weekDropdown button");
       buttons.forEach((btn, idx) => {
         if (idx + 1 === weekNum) btn.classList.add("active");
         else btn.classList.remove("active");
       });
 
-      // 식단표 렌더링
+      document.getElementById("weekDropdown").classList.remove("show");
+      renderMealTable();
+    }
+
+    // 식단표 및 알러지 하이라이트 렌더링
+    function renderMealTable() {
+      const selected = menuData[currentWeek];
+
+      if (!selected || !selected.days || selected.days.length === 0) {
+        document.getElementById("meal-content").innerHTML = "<p style='padding: 30px; text-align: center; color: #64748b;'>해당 주차의 식단 데이터가 없습니다.</p>";
+        return;
+      }
+
       let tableHTML = `<table class="meal-table"><thead><tr>`;
       selected.days.forEach(d => {
         tableHTML += `<th>
@@ -252,12 +623,31 @@
       selected.days.forEach(d => {
         tableHTML += `<td>`;
         
+        // 공휴일 처리
+        if ((!d.lunch || d.lunch.length === 0) && (!d.dinner || d.dinner.length === 0)) {
+          tableHTML += `<div style="margin-top: 40px; color: #94a3b8; font-weight: bold;">급식 없음</div>`;
+        }
+
         // 중식 표출
         if (d.lunch && d.lunch.length > 0) {
           tableHTML += `<div class="meal-type">☀️ 중식</div><div class="menu-group">`;
           d.lunch.forEach(item => {
-            const allergyStr = item.allergies.length > 0 ? `<span class="allergy-info">(${item.allergies.join('.')})</span>` : '';
-            tableHTML += `<div class="menu-item">${item.menu} ${allergyStr}</div>`;
+            const hasConflict = item.allergies.some(code => selectedAllergies.has(code));
+            const highlightClass = hasConflict ? 'highlight-danger' : '';
+            
+            let allergyBadges = '';
+            if (item.allergies.length > 0) {
+              allergyBadges = item.allergies.map(code => {
+                const isSelected = selectedAllergies.has(code);
+                const isDanger = isSelected ? 'danger' : '';
+                return `<span class="allergy-badge ${isDanger}">${ALLERGY_MAP[code] || code}</span>`;
+              }).join(' ');
+            }
+
+            tableHTML += `<div class="menu-item ${highlightClass}">
+              <strong>${item.menu}</strong>
+              <div style="margin-top: 2px;">${allergyBadges}</div>
+            </div>`;
           });
           tableHTML += `</div>`;
         }
@@ -266,8 +656,22 @@
         if (d.dinner && d.dinner.length > 0) {
           tableHTML += `<div class="meal-type dinner">🌙 석식</div><div class="menu-group">`;
           d.dinner.forEach(item => {
-            const allergyStr = item.allergies.length > 0 ? `<span class="allergy-info">(${item.allergies.join('.')})</span>` : '';
-            tableHTML += `<div class="menu-item">${item.menu} ${allergyStr}</div>`;
+            const hasConflict = item.allergies.some(code => selectedAllergies.has(code));
+            const highlightClass = hasConflict ? 'highlight-danger' : '';
+            
+            let allergyBadges = '';
+            if (item.allergies.length > 0) {
+              allergyBadges = item.allergies.map(code => {
+                const isSelected = selectedAllergies.has(code);
+                const isDanger = isSelected ? 'danger' : '';
+                return `<span class="allergy-badge ${isDanger}">${ALLERGY_MAP[code] || code}</span>`;
+              }).join(' ');
+            }
+
+            tableHTML += `<div class="menu-item ${highlightClass}">
+              <strong>${item.menu}</strong>
+              <div style="margin-top: 2px;">${allergyBadges}</div>
+            </div>`;
           });
           tableHTML += `</div>`;
         }
@@ -278,7 +682,6 @@
       tableHTML += `</tr></tbody></table>`;
 
       document.getElementById("meal-content").innerHTML = tableHTML;
-      document.getElementById("weekDropdown").classList.remove("show");
     }
 
     // 바깥 클릭 시 드롭다운 닫기
@@ -294,7 +697,8 @@
       }
     }
 
-    // 초기 실행 (1주차 렌더링)
+    // 초기 실행
+    initAllergyFilters();
     selectWeek(1);
   </script>
 </body>
