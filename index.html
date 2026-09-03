@@ -533,7 +533,8 @@
       for (const [code, name] of Object.entries(ALLERGY_MAP)) {
         html += `
           <label class="allergy-item">
-            <input type="checkbox" value="${code}" onchange="toggleAllergy(${code})">
+            <input type="checkbox" value="${code}" onchange="toggleAllergy('${code}')">
+
             <span>${code}.${name}</span>
           </label>
         `;
